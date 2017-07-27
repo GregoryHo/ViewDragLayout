@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+  <com.ns.greg.library.ViewDragLayout
+      android:id="@+id/horizontal_vdh"
+      android:layout_width="match_parent"
+      android:layout_height="75dp"
+      android:layout_alignParentRight="true"
+      >
+
+    <LinearLayout
+        android:id="@+id/horizontal_hover_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorAccent"
+        android:orientation="horizontal"
+        >
+
+      <TextView
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:gravity="center"
+          android:text="Swipe Left!"
+          android:textColor="@android:color/white"
+          android:textSize="16sp"
+          />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/horizontal_bottom_view"
+        android:layout_width="100dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:text="Horizontal"
+        android:textColor="@android:color/holo_red_dark"
+        android:textSize="16sp"
+        />
+
+  </com.ns.greg.library.ViewDragLayout>
+
+  <com.ns.greg.library.ViewDragLayout
+      android:id="@+id/vertical_vdh"
+      android:layout_width="match_parent"
+      android:layout_height="75dp"
+      android:layout_alignParentRight="true"
+      android:layout_below="@+id/horizontal_vdh"
+      android:layout_marginTop="20dp"
+      >
+
+    <LinearLayout
+        android:id="@+id/vertical_hover_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimaryDark"
+        android:orientation="horizontal"
+        >
+
+      <TextView
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:gravity="center"
+          android:text="Swipe Top!"
+          android:textColor="@android:color/white"
+          android:textSize="16sp"
+          />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/vertical_bottom_view"
+        android:layout_width="100dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:text="Vertical"
+        android:textColor="@android:color/holo_red_dark"
+        android:textSize="16sp"
+        />
+
+  </com.ns.greg.library.ViewDragLayout>
+
+</RelativeLayout>
