@@ -37,8 +37,9 @@ public class VDHActivity extends AppCompatActivity {
     new ViewDragLayout.Builder(horizontalHover).setLayoutType(ViewDragLayout.HOVER_HORIZONTAL)
         .setSpecificDragDirectionFlag(R.id.horizontal_hover_view,
             ViewDragLayout.LEFT | ViewDragLayout.RIGHT)
-        .setDragX(dragX, 0)
-        .chainAll(true)
+        .setSpecificDragX(R.id.horizontal_hover_view, dragX, 0)
+        .setSpecificDragX(R.id.horizontal_bottom_view, dragX, 0)
+        .chainWith(R.id.horizontal_hover_view, R.id.horizontal_bottom_view)
         .create();
 
     /*--------------------------------

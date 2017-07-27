@@ -16,8 +16,6 @@ import android.widget.FrameLayout;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Gregory on 2017/3/17.
@@ -81,8 +79,6 @@ public class ViewDragLayout extends FrameLayout {
   private final SparseArray<Distance> dragDistanceYs = new SparseArray<>();
 
   private final SparseIntArray edgeViews = new SparseIntArray();
-
-  private final SparseArray<List<View>> chainList = new SparseArray<>();
 
   private ViewDragHelper viewDragHelper;
 
@@ -603,29 +599,6 @@ public class ViewDragLayout extends FrameLayout {
     this.chainEnable = chainEnable;
   }
 
-  private void chainWithSpecificView(final int targetId, final int[] chainId) {
-    addOnLayoutChangeListener(new OnLayoutChangeListener() {
-      @Override
-      public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
-          int oldTop, int oldRight, int oldBottom) {
-        View child = childViews.get(targetId);
-        if (child != null) {
-          List<View> chain = new ArrayList<>();
-          for (int id : chainId) {
-            View view = childViews.get(id);
-            if (view != null) {
-              chain.add(view);
-            }
-          }
-
-          chainList.put(targetId, chain);
-        }
-
-        removeOnLayoutChangeListener(this);
-      }
-    });
-  }
-
   /**
    * VDH callback
    */
@@ -662,22 +635,9 @@ public class ViewDragLayout extends FrameLayout {
       int flag = instance.dragFlags.get(child.getId()) & (LEFT | RIGHT);
       Distance distanceX = instance.dragDistanceXs.get(child.getId());
 
-      List<View> chains = instance.chainList.get(child.getId());
       switch (flag) {
         case LEFT:
           if (dx < 0) {
-            if (chains != null) {
-              for (View chain : chains) {
-                Distance chainX = instance.dragDistanceXs.get(chain.getId());
-                if (chainX != null) {
-                  int x = child.getLeft() - left;
-                  if (chain.getLeft() - x >= chainX.getMin()) {
-                    chain.offsetLeftAndRight(-x);
-                  }
-                }
-              }
-            }
-
             if (distanceX != null) {
               if (left >= distanceX.getMin()) {
                 return left;
@@ -689,18 +649,6 @@ public class ViewDragLayout extends FrameLayout {
 
         case RIGHT:
           if (dx > 0) {
-            if (chains != null) {
-              for (View chain : chains) {
-                Distance chainX = instance.dragDistanceXs.get(chain.getId());
-                if (chainX != null) {
-                  int x = child.getLeft() - left;
-                  if (chain.getLeft() + x <= chainX.getMax()) {
-                    chain.offsetLeftAndRight(x);
-                  }
-                }
-              }
-            }
-
             if (distanceX != null) {
               if (left <= distanceX.getMax()) {
                 return left;
@@ -711,20 +659,6 @@ public class ViewDragLayout extends FrameLayout {
           break;
 
         case (LEFT | RIGHT):
-          if (chains != null) {
-            for (View chain : chains) {
-              Distance chainX = instance.dragDistanceXs.get(chain.getId());
-              if (chainX != null) {
-                int x = child.getLeft() - left;
-                if (chain.getLeft() - x >= chainX.getMin()) {
-                  chain.offsetLeftAndRight(-x);
-                } else if (chain.getLeft() + x <= chainX.getMax()) {
-                  chain.offsetLeftAndRight(x);
-                }
-              }
-            }
-          }
-
           if (distanceX != null) {
             if (left >= distanceX.getMin() && left <= distanceX.getMax()) {
               return left;
@@ -893,26 +827,6 @@ public class ViewDragLayout extends FrameLayout {
           ViewCompat.postInvalidateOnAnimation(instance);
         }
       }
-
-      List<View> chains = instance.chainList.get(releasedChild.getId());
-      if (chains != null) {
-        for (View chain : chains) {
-          int chainLeft = chain.getLeft();
-          Distance chainX = instance.dragDistanceXs.get(chain.getId());
-          if (chainX != null) {
-            int distanceThreshold = (chainX.getMax() + chainX.getMin()) / 2;
-            if (xvel < -VELOCITY_THRESHOLD || chain.getLeft() <= distanceThreshold) {
-              chainLeft = chainX.getMin();
-            } else if (xvel > VELOCITY_THRESHOLD || chain.getLeft() > distanceThreshold) {
-              chainLeft = chainX.getMax();
-            }
-
-            if (instance.viewDragHelper.smoothSlideViewTo(chain, chainLeft, chain.getTop())) {
-              ViewCompat.postInvalidateOnAnimation(instance);
-            }
-          }
-        }
-      }
     }
 
     private void postVerticalAnimation(View releasedChild, float yvel) {
@@ -1044,8 +958,7 @@ public class ViewDragLayout extends FrameLayout {
      * @param chainId the view you want to chainAll together
      */
     public Builder chainWith(@IdRes int targetId, int... chainId) {
-      // FIXME: 2017/7/27 , some problem
-      instance.chainWithSpecificView(targetId, chainId);
+      // FIXME: 2017/7/27 , specific chain list
       return this;
     }
 
