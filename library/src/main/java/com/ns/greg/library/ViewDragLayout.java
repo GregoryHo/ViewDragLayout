@@ -666,12 +666,14 @@ public class ViewDragLayout extends FrameLayout {
       switch (flag) {
         case LEFT:
           if (dx < 0) {
-            for (View chain : chains) {
-              Distance chainX = instance.dragDistanceXs.get(chain.getId());
-              if (chainX != null) {
-                int x = child.getLeft() - left;
-                if (chain.getLeft() - x >= chainX.getMin()) {
-                  chain.offsetLeftAndRight(-x);
+            if (chains != null) {
+              for (View chain : chains) {
+                Distance chainX = instance.dragDistanceXs.get(chain.getId());
+                if (chainX != null) {
+                  int x = child.getLeft() - left;
+                  if (chain.getLeft() - x >= chainX.getMin()) {
+                    chain.offsetLeftAndRight(-x);
+                  }
                 }
               }
             }
@@ -687,12 +689,14 @@ public class ViewDragLayout extends FrameLayout {
 
         case RIGHT:
           if (dx > 0) {
-            for (View chain : chains) {
-              Distance chainX = instance.dragDistanceXs.get(chain.getId());
-              if (chainX != null) {
-                int x = child.getLeft() - left;
-                if (chain.getLeft() + x <= chainX.getMax()) {
-                  chain.offsetLeftAndRight(x);
+            if (chains != null) {
+              for (View chain : chains) {
+                Distance chainX = instance.dragDistanceXs.get(chain.getId());
+                if (chainX != null) {
+                  int x = child.getLeft() - left;
+                  if (chain.getLeft() + x <= chainX.getMax()) {
+                    chain.offsetLeftAndRight(x);
+                  }
                 }
               }
             }
@@ -707,14 +711,16 @@ public class ViewDragLayout extends FrameLayout {
           break;
 
         case (LEFT | RIGHT):
-          for (View chain : chains) {
-            Distance chainX = instance.dragDistanceXs.get(chain.getId());
-            if (chainX != null) {
-              int x = child.getLeft() - left;
-              if (chain.getLeft() - x >= chainX.getMin()) {
-                chain.offsetLeftAndRight(-x);
-              } else if (chain.getLeft() + x <= chainX.getMax()) {
-                chain.offsetLeftAndRight(x);
+          if (chains != null) {
+            for (View chain : chains) {
+              Distance chainX = instance.dragDistanceXs.get(chain.getId());
+              if (chainX != null) {
+                int x = child.getLeft() - left;
+                if (chain.getLeft() - x >= chainX.getMin()) {
+                  chain.offsetLeftAndRight(-x);
+                } else if (chain.getLeft() + x <= chainX.getMax()) {
+                  chain.offsetLeftAndRight(x);
+                }
               }
             }
           }
@@ -889,19 +895,21 @@ public class ViewDragLayout extends FrameLayout {
       }
 
       List<View> chains = instance.chainList.get(releasedChild.getId());
-      for (View chain : chains) {
-        int chainLeft = chain.getLeft();
-        Distance chainX = instance.dragDistanceXs.get(chain.getId());
-        if (chainX != null) {
-          int distanceThreshold = (chainX.getMax() + chainX.getMin()) / 2;
-          if (xvel < -VELOCITY_THRESHOLD || chain.getLeft() <= distanceThreshold) {
-            chainLeft = chainX.getMin();
-          } else if (xvel > VELOCITY_THRESHOLD || chain.getLeft() > distanceThreshold) {
-            chainLeft = chainX.getMax();
-          }
+      if (chains != null) {
+        for (View chain : chains) {
+          int chainLeft = chain.getLeft();
+          Distance chainX = instance.dragDistanceXs.get(chain.getId());
+          if (chainX != null) {
+            int distanceThreshold = (chainX.getMax() + chainX.getMin()) / 2;
+            if (xvel < -VELOCITY_THRESHOLD || chain.getLeft() <= distanceThreshold) {
+              chainLeft = chainX.getMin();
+            } else if (xvel > VELOCITY_THRESHOLD || chain.getLeft() > distanceThreshold) {
+              chainLeft = chainX.getMax();
+            }
 
-          if (instance.viewDragHelper.smoothSlideViewTo(chain, chainLeft, chain.getTop())) {
-            ViewCompat.postInvalidateOnAnimation(instance);
+            if (instance.viewDragHelper.smoothSlideViewTo(chain, chainLeft, chain.getTop())) {
+              ViewCompat.postInvalidateOnAnimation(instance);
+            }
           }
         }
       }
