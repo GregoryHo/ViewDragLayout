@@ -6,29 +6,27 @@ package com.ns.greg.library;
 
 class Distance {
 
+  private int dragMin;
+
+  private int dragMax;
+
   private int min;
 
   private int max;
 
-  Distance(int min, int max) {
-    this.min = min;
-    this.max = max;
+  Distance(int startPoint, int dragMin, int dragMax) {
+    this.dragMin = dragMin;
+    this.dragMax = dragMax;
+    this.min = startPoint - dragMin;
+    this.max = startPoint + dragMax;
   }
 
   int getMin() {
     return min;
   }
 
-  void setMin(int min) {
-    this.min = min;
-  }
-
   int getMax() {
     return max;
-  }
-
-  void setMax(int max) {
-    this.max = max;
   }
 
   @Override public String toString() {

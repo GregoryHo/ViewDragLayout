@@ -13,10 +13,10 @@ import android.util.SparseIntArray;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,9 +28,9 @@ public class ViewDragLayout extends FrameLayout {
 
   private static final Boolean DEBUG = false;
 
-  /*--------------------------------
+  /*********************************
    * Mode definitions
-   *-------------------------------*/
+   *********************************/
 
   public static final int HOVER_OVERLAY = 0;
 
@@ -43,9 +43,9 @@ public class ViewDragLayout extends FrameLayout {
 
   }
 
-  /*--------------------------------
+  /*********************************
    * Direction definitions
-   *-------------------------------*/
+   *********************************/
 
   public static final int LEFT = 1;
 
@@ -62,13 +62,15 @@ public class ViewDragLayout extends FrameLayout {
 
   }
 
-  /*--------------------------------
-   * Common declaration
-   *-------------------------------*/
+  /*********************************
+   * Drag Threshold
+   *********************************/
 
-  private ViewDragHelper viewDragHelper;
+  private static final int VELOCITY_THRESHOLD = 50;
 
-  private boolean vdhEnable = true;
+  /*********************************
+   * General declaration
+   *********************************/
 
   private final SparseArray<View> childViews = new SparseArray<>();
 
@@ -82,15 +84,19 @@ public class ViewDragLayout extends FrameLayout {
 
   private final SparseArray<List<View>> chainList = new SparseArray<>();
 
+  private ViewDragHelper viewDragHelper;
+
+  private boolean vdhEnable = true;
+
   private @HoverMode int layoutType = HOVER_OVERLAY;
 
   private boolean chainEnable = false;
 
   private int edgeFlag = 0;
 
-  /*--------------------------------
-   * Constructors
-   *-------------------------------*/
+  /*********************************
+   * Constructor
+   *********************************/
 
   public ViewDragLayout(Context context) {
     this(context, null);
@@ -104,9 +110,9 @@ public class ViewDragLayout extends FrameLayout {
     super(context, attrs, defStyle);
   }
 
-  /*--------------------------------
+  /*********************************
    * Functions
-   *-------------------------------*/
+   *********************************/
 
   @Override protected void onAttachedToWindow() {
     super.onAttachedToWindow();
@@ -132,8 +138,8 @@ public class ViewDragLayout extends FrameLayout {
   /**
    * Measure view group with current layout type
    *
-   * @param layoutType layout type {@link #HOVER_OVERLAY}, {@link #HOVER_HORIZONTAL},
-   * {@link #HOVER_VERTICAL}
+   * @param layoutType layout type {@link #HOVER_OVERLAY}, {@link #HOVER_HORIZONTAL}, {@link
+   * #HOVER_VERTICAL}
    * @param widthMeasureSpec measure spec
    * @param heightMeasureSpec measure spec
    * @param childCount group child count
@@ -389,10 +395,6 @@ public class ViewDragLayout extends FrameLayout {
     return viewDragHelper;
   }
 
-  public Builder createDragViewOptions() {
-    return new Builder(this);
-  }
-
   /**
    * Sets VDH enable status
    *
@@ -493,9 +495,7 @@ public class ViewDragLayout extends FrameLayout {
           // Only the child has drag flag can set drag x
           int flag = dragFlags.get(child.getId());
           if (flag > 0) {
-            int min = child.getLeft() - leftX;
-            int max = child.getLeft() + rightX;
-            dragDistanceXs.put(child.getId(), new Distance(min, max));
+            dragDistanceXs.put(child.getId(), new Distance(child.getLeft(), leftX, rightX));
           }
         }
 
@@ -518,9 +518,7 @@ public class ViewDragLayout extends FrameLayout {
           int oldTop, int oldRight, int oldBottom) {
         View child = childViews.get(childId);
         if (child != null) {
-          int min = child.getLeft() - leftX;
-          int max = child.getLeft() + rightX;
-          dragDistanceXs.put(childId, new Distance(min, max));
+          dragDistanceXs.put(childId, new Distance(child.getLeft(), leftX, rightX));
         }
 
         removeOnLayoutChangeListener(this);
@@ -531,10 +529,10 @@ public class ViewDragLayout extends FrameLayout {
   /**
    * Sets all child's drag distance y
    *
-   * @param dy top distance
+   * @param topY top distance
    * @param bottomY bottom distance
    */
-  private void setDragY(final int dy, final int bottomY) {
+  private void setDragY(final int topY, final int bottomY) {
     addOnLayoutChangeListener(new OnLayoutChangeListener() {
       @Override
       public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
@@ -543,9 +541,7 @@ public class ViewDragLayout extends FrameLayout {
         int size = childViews.size();
         for (int i = 0; i < size; i++) {
           View child = childViews.valueAt(i);
-          int min = child.getTop() - dy;
-          int max = child.getTop() + bottomY;
-          dragDistanceYs.put(child.getId(), new Distance(min, max));
+          dragDistanceYs.put(child.getId(), new Distance(child.getTop(), topY, bottomY));
         }
 
         removeOnLayoutChangeListener(this);
@@ -567,9 +563,7 @@ public class ViewDragLayout extends FrameLayout {
           int oldTop, int oldRight, int oldBottom) {
         View child = childViews.get(childId);
         if (child != null) {
-          int min = child.getTop() - topY;
-          int max = child.getTop() + bottomY;
-          dragDistanceYs.put(childId, new Distance(min, max));
+          dragDistanceYs.put(childId, new Distance(child.getTop(), topY, bottomY));
         }
 
         removeOnLayoutChangeListener(this);
@@ -603,10 +597,33 @@ public class ViewDragLayout extends FrameLayout {
   /**
    * [NOTICED] this is not completed.
    *
-   * @param chainEnable true if u want drag view like a chain, false otherwise.
+   * @param chainEnable true if u want drag view like a setChain, false otherwise.
    */
-  private void setChain(boolean chainEnable) {
+  private void chainWithAllView(boolean chainEnable) {
     this.chainEnable = chainEnable;
+  }
+
+  private void chainWithSpecificView(final int targetId, final int[] chainId) {
+    addOnLayoutChangeListener(new OnLayoutChangeListener() {
+      @Override
+      public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
+          int oldTop, int oldRight, int oldBottom) {
+        View child = childViews.get(targetId);
+        if (child != null) {
+          List<View> chain = new ArrayList<>();
+          for (int id : chainId) {
+            View view = childViews.get(id);
+            if (view != null) {
+              chain.add(view);
+            }
+          }
+
+          chainList.put(targetId, chain);
+        }
+
+        removeOnLayoutChangeListener(this);
+      }
+    });
   }
 
   /**
@@ -617,7 +634,7 @@ public class ViewDragLayout extends FrameLayout {
     private final ViewDragLayout instance;
 
     CustomViewDragHelperCallback(ViewDragLayout reference) {
-      WeakReference<ViewDragLayout> weakReference = new WeakReference<ViewDragLayout>(reference);
+      WeakReference<ViewDragLayout> weakReference = new WeakReference<>(reference);
       instance = weakReference.get();
     }
 
@@ -644,15 +661,25 @@ public class ViewDragLayout extends FrameLayout {
     @Override public int clampViewPositionHorizontal(View child, int left, int dx) {
       int flag = instance.dragFlags.get(child.getId()) & (LEFT | RIGHT);
       Distance distanceX = instance.dragDistanceXs.get(child.getId());
+
+      List<View> chains = instance.chainList.get(child.getId());
       switch (flag) {
         case LEFT:
           if (dx < 0) {
+            for (View chain : chains) {
+              Distance chainX = instance.dragDistanceXs.get(chain.getId());
+              if (chainX != null) {
+                int x = child.getLeft() - left;
+                if (chain.getLeft() - x >= chainX.getMin()) {
+                  chain.offsetLeftAndRight(-x);
+                }
+              }
+            }
+
             if (distanceX != null) {
               if (left >= distanceX.getMin()) {
                 return left;
               }
-            } else {
-              return left;
             }
           }
 
@@ -660,24 +687,42 @@ public class ViewDragLayout extends FrameLayout {
 
         case RIGHT:
           if (dx > 0) {
+            for (View chain : chains) {
+              Distance chainX = instance.dragDistanceXs.get(chain.getId());
+              if (chainX != null) {
+                int x = child.getLeft() - left;
+                if (chain.getLeft() + x <= chainX.getMax()) {
+                  chain.offsetLeftAndRight(x);
+                }
+              }
+            }
+
             if (distanceX != null) {
               if (left <= distanceX.getMax()) {
                 return left;
               }
-            } else {
-              return left;
             }
           }
 
           break;
 
         case (LEFT | RIGHT):
+          for (View chain : chains) {
+            Distance chainX = instance.dragDistanceXs.get(chain.getId());
+            if (chainX != null) {
+              int x = child.getLeft() - left;
+              if (chain.getLeft() - x >= chainX.getMin()) {
+                chain.offsetLeftAndRight(-x);
+              } else if (chain.getLeft() + x <= chainX.getMax()) {
+                chain.offsetLeftAndRight(x);
+              }
+            }
+          }
+
           if (distanceX != null) {
             if (left >= distanceX.getMin() && left <= distanceX.getMax()) {
               return left;
             }
-          } else {
-            return left;
           }
 
           break;
@@ -699,8 +744,6 @@ public class ViewDragLayout extends FrameLayout {
               if (top >= distanceY.getMin()) {
                 return top;
               }
-            } else {
-              return top;
             }
           }
 
@@ -712,8 +755,6 @@ public class ViewDragLayout extends FrameLayout {
               if (top <= distanceY.getMax()) {
                 return top;
               }
-            } else {
-              return top;
             }
           }
 
@@ -724,8 +765,6 @@ public class ViewDragLayout extends FrameLayout {
             if (top >= distanceY.getMin() && top <= distanceY.getMax()) {
               return top;
             }
-          } else {
-            return top;
           }
 
           break;
@@ -813,7 +852,12 @@ public class ViewDragLayout extends FrameLayout {
 
       Distance x = instance.dragDistanceXs.get(releasedChild.getId());
       if (x != null) {
-        left = xvel < 0 ? x.getMin() : x.getMax();
+        int distanceThreshold = x.getMax() + x.getMin() / 2;
+        if (xvel < -VELOCITY_THRESHOLD || releasedChild.getLeft() < distanceThreshold) {
+          left = x.getMin();
+        } else if (xvel > VELOCITY_THRESHOLD || releasedChild.getLeft() > distanceThreshold) {
+          left = x.getMax();
+        }
       }
 
       Distance y = instance.dragDistanceYs.get(releasedChild.getId());
@@ -828,12 +872,37 @@ public class ViewDragLayout extends FrameLayout {
 
     private void postHorizontalAnimation(View releasedChild, float xvel) {
       Distance x = instance.dragDistanceXs.get(releasedChild.getId());
+      int left = releasedChild.getLeft();
+
       if (x != null) {
-        int left = xvel < 0 ? x.getMin() : x.getMax();
+        int distanceThreshold = (x.getMax() + x.getMin()) / 2;
+        if (xvel < -VELOCITY_THRESHOLD || releasedChild.getLeft() <= distanceThreshold) {
+          left = x.getMin();
+        } else if (xvel > VELOCITY_THRESHOLD || releasedChild.getLeft() > distanceThreshold) {
+          left = x.getMax();
+        }
 
         if (instance.viewDragHelper.smoothSlideViewTo(releasedChild, left,
             releasedChild.getTop())) {
           ViewCompat.postInvalidateOnAnimation(instance);
+        }
+      }
+
+      List<View> chains = instance.chainList.get(releasedChild.getId());
+      for (View chain : chains) {
+        int chainLeft = chain.getLeft();
+        Distance chainX = instance.dragDistanceXs.get(chain.getId());
+        if (chainX != null) {
+          int distanceThreshold = (chainX.getMax() + chainX.getMin()) / 2;
+          if (xvel < -VELOCITY_THRESHOLD || chain.getLeft() <= distanceThreshold) {
+            chainLeft = chainX.getMin();
+          } else if (xvel > VELOCITY_THRESHOLD || chain.getLeft() > distanceThreshold) {
+            chainLeft = chainX.getMax();
+          }
+
+          if (instance.viewDragHelper.smoothSlideViewTo(chain, chainLeft, chain.getTop())) {
+            ViewCompat.postInvalidateOnAnimation(instance);
+          }
         }
       }
     }
@@ -855,8 +924,8 @@ public class ViewDragLayout extends FrameLayout {
 
     private final ViewDragLayout instance;
 
-    private Builder(ViewDragLayout reference) {
-      WeakReference<ViewDragLayout> weakReference = new WeakReference<ViewDragLayout>(reference);
+    public Builder(ViewDragLayout reference) {
+      WeakReference<ViewDragLayout> weakReference = new WeakReference<>(reference);
       instance = weakReference.get();
     }
 
@@ -951,22 +1020,28 @@ public class ViewDragLayout extends FrameLayout {
     }
 
     /**
-     * [NOTICED] this only work at linear mode.
+     * [NOTICED] this only work at linear mode
      *
-     * @param chainEnable true if u want drag view like a chain, false otherwise.
+     * @param chainEnable true if u want drag view like a setChain, false otherwise
      */
-    public Builder isChain(boolean chainEnable) {
-      instance.setChain(chainEnable);
-      return this;
-    }
-
-    // FIXME: 2017/3/22, the specific chain list.
-    public Builder chainWith(@IdRes int targetId, int... chainId) {
+    public Builder setChain(boolean chainEnable) {
+      instance.chainWithAllView(chainEnable);
       return this;
     }
 
     /**
-     * Must be called when you create a layout options.
+     * Chained view together while drag
+     *
+     * @param targetId target root view
+     * @param chainId the view you want to setChain together
+     */
+    public Builder setChainWith(@IdRes int targetId, int... chainId) {
+      instance.chainWithSpecificView(targetId, chainId);
+      return this;
+    }
+
+    /**
+     * Must be called when you create a layout options
      */
     public void create() {
       instance.requestLayout();
@@ -974,3 +1049,4 @@ public class ViewDragLayout extends FrameLayout {
     }
   }
 }
+

@@ -30,12 +30,11 @@ public class VDHActivity extends AppCompatActivity {
     findViewById(R.id.horizontal_bottom_view).setOnClickListener(
         v -> horizontalHover.dragSpecificView(R.id.horizontal_hover_view, dragX, 0));
 
-    horizontalHover.createDragViewOptions()
-        .setLayoutType(ViewDragLayout.HOVER_HORIZONTAL)
+    new ViewDragLayout.Builder(horizontalHover).setLayoutType(ViewDragLayout.HOVER_HORIZONTAL)
         .setSpecificDragDirectionFlag(R.id.horizontal_hover_view,
             ViewDragLayout.LEFT | ViewDragLayout.RIGHT)
         .setDragX(dragX, 0)
-        .isChain(true)
+        .setChain(true)
         .create();
 
     /*--------------------------------
@@ -49,13 +48,12 @@ public class VDHActivity extends AppCompatActivity {
     findViewById(R.id.vertical_bottom_view).setOnClickListener(
         v -> verticalHover.dragSpecificView(R.id.vertical_hover_view, 0, dragY));
 
-    verticalHover.createDragViewOptions()
-        .setLayoutType(ViewDragLayout.HOVER_VERTICAL)
+    new ViewDragLayout.Builder(verticalHover).setLayoutType(ViewDragLayout.HOVER_VERTICAL)
         .setSpecificDragDirectionFlag(R.id.vertical_hover_view,
             ViewDragLayout.TOP | ViewDragLayout.BOTTOM)
         .setSpecificDragEdgeFlag(R.id.vertical_hover_view, ViewDragHelper.EDGE_TOP)
         .setDragY(dragY, 0)
-        .isChain(true)
+        .setChain(true)
         .create();
   }
 
