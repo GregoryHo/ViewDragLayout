@@ -597,7 +597,7 @@ public class ViewDragLayout extends FrameLayout {
   /**
    * [NOTICED] this is not completed.
    *
-   * @param chainEnable true if u want drag view like a setChain, false otherwise.
+   * @param chainEnable true if u want drag view like a chainAll, false otherwise.
    */
   private void chainWithAllView(boolean chainEnable) {
     this.chainEnable = chainEnable;
@@ -1022,9 +1022,9 @@ public class ViewDragLayout extends FrameLayout {
     /**
      * [NOTICED] this only work at linear mode
      *
-     * @param chainEnable true if u want drag view like a setChain, false otherwise
+     * @param chainEnable true if u want drag view like a chainAll, false otherwise
      */
-    public Builder setChain(boolean chainEnable) {
+    public Builder chainAll(boolean chainEnable) {
       instance.chainWithAllView(chainEnable);
       return this;
     }
@@ -1033,9 +1033,10 @@ public class ViewDragLayout extends FrameLayout {
      * Chained view together while drag
      *
      * @param targetId target root view
-     * @param chainId the view you want to setChain together
+     * @param chainId the view you want to chainAll together
      */
-    public Builder setChainWith(@IdRes int targetId, int... chainId) {
+    public Builder chainWith(@IdRes int targetId, int... chainId) {
+      // FIXME: 2017/7/27 , some problem
       instance.chainWithSpecificView(targetId, chainId);
       return this;
     }

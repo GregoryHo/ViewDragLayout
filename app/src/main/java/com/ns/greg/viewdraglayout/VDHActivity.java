@@ -7,6 +7,7 @@ import android.support.v4.widget.ViewDragHelper;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 
+import android.view.View;
 import com.ns.greg.library.ViewDragLayout;
 
 /**
@@ -27,14 +28,17 @@ public class VDHActivity extends AppCompatActivity {
 
     final int dragX = convertDpToPixel(100f, getApplicationContext());
 
-    findViewById(R.id.horizontal_bottom_view).setOnClickListener(
-        v -> horizontalHover.dragSpecificView(R.id.horizontal_hover_view, dragX, 0));
+    findViewById(R.id.horizontal_bottom_view).setOnClickListener(new View.OnClickListener() {
+      @Override public void onClick(View v) {
+        horizontalHover.dragSpecificView(R.id.horizontal_hover_view, dragX, 0);
+      }
+    });
 
     new ViewDragLayout.Builder(horizontalHover).setLayoutType(ViewDragLayout.HOVER_HORIZONTAL)
         .setSpecificDragDirectionFlag(R.id.horizontal_hover_view,
             ViewDragLayout.LEFT | ViewDragLayout.RIGHT)
         .setDragX(dragX, 0)
-        .setChain(true)
+        .chainAll(true)
         .create();
 
     /*--------------------------------
@@ -45,15 +49,18 @@ public class VDHActivity extends AppCompatActivity {
 
     final int dragY = convertDpToPixel(75f, getApplicationContext());
 
-    findViewById(R.id.vertical_bottom_view).setOnClickListener(
-        v -> verticalHover.dragSpecificView(R.id.vertical_hover_view, 0, dragY));
+    findViewById(R.id.vertical_bottom_view).setOnClickListener(new View.OnClickListener() {
+      @Override public void onClick(View v) {
+        verticalHover.dragSpecificView(R.id.vertical_hover_view, 0, dragY);
+      }
+    });
 
     new ViewDragLayout.Builder(verticalHover).setLayoutType(ViewDragLayout.HOVER_VERTICAL)
         .setSpecificDragDirectionFlag(R.id.vertical_hover_view,
             ViewDragLayout.TOP | ViewDragLayout.BOTTOM)
         .setSpecificDragEdgeFlag(R.id.vertical_hover_view, ViewDragHelper.EDGE_TOP)
         .setDragY(dragY, 0)
-        .setChain(true)
+        .chainAll(true)
         .create();
   }
 
