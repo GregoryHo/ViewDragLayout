@@ -21,47 +21,58 @@ public class VDHActivity extends AppCompatActivity {
     setContentView(R.layout.demo);
 
     /*--------------------------------
-     * Horizontal
+     * Swipe left
      *-------------------------------*/
 
     final ViewDragLayout horizontalHover = (ViewDragLayout) findViewById(R.id.horizontal_vdh);
-
     final int dragX = convertDpToPixel(100f, getApplicationContext());
-
     findViewById(R.id.horizontal_bottom_view).setOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View v) {
         horizontalHover.dragSpecificView(R.id.horizontal_hover_view, dragX, 0);
       }
     });
-
     new ViewDragLayout.Builder(horizontalHover).setLayoutType(ViewDragLayout.HOVER_HORIZONTAL)
         .setSpecificDragDirectionFlag(R.id.horizontal_hover_view,
             ViewDragLayout.LEFT | ViewDragLayout.RIGHT)
-        .setSpecificDragX(R.id.horizontal_hover_view, dragX, 0)
-        .setSpecificDragX(R.id.horizontal_bottom_view, dragX, 0)
-        .chainWith(R.id.horizontal_hover_view, R.id.horizontal_bottom_view)
+        .setDragX(dragX, 0)
+        .asChain(true)
         .create();
 
     /*--------------------------------
-     * Vertical
+     * Swipe top
      *-------------------------------*/
 
     final ViewDragLayout verticalHover = (ViewDragLayout) findViewById(R.id.vertical_vdh);
-
     final int dragY = convertDpToPixel(75f, getApplicationContext());
-
     findViewById(R.id.vertical_bottom_view).setOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View v) {
         verticalHover.dragSpecificView(R.id.vertical_hover_view, 0, dragY);
       }
     });
-
     new ViewDragLayout.Builder(verticalHover).setLayoutType(ViewDragLayout.HOVER_VERTICAL)
         .setSpecificDragDirectionFlag(R.id.vertical_hover_view,
             ViewDragLayout.TOP | ViewDragLayout.BOTTOM)
         .setSpecificDragEdgeFlag(R.id.vertical_hover_view, ViewDragHelper.EDGE_TOP)
         .setDragY(dragY, 0)
-        .chainAll(true)
+        .asChain(true)
+        .create();
+
+    /*--------------------------------
+     * Hook right
+     *-------------------------------*/
+
+    final ViewDragLayout hookHover = (ViewDragLayout) findViewById(R.id.hooked_vdh);
+    final int hookX = convertDpToPixel(100f, getApplicationContext());
+    findViewById(R.id.hooked_bottom_view).setOnClickListener(new View.OnClickListener() {
+      @Override public void onClick(View v) {
+        hookHover.dragSpecificView(R.id.hooked_bottom_view, hookX, 0);
+      }
+    });
+    new ViewDragLayout.Builder(hookHover).setLayoutType(ViewDragLayout.HOVER_HORIZONTAL)
+        .setSpecificDragDirectionFlag(R.id.hooked_hover_view,
+            ViewDragLayout.LEFT | ViewDragLayout.RIGHT)
+        .setSpecificDragX(R.id.hooked_bottom_view, dragX, 0)
+        .hookWith(R.id.hooked_hover_view, R.id.hooked_bottom_view)
         .create();
   }
 

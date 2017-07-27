@@ -16,6 +16,8 @@ import android.widget.FrameLayout;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Gregory on 2017/3/17.
@@ -79,6 +81,8 @@ public class ViewDragLayout extends FrameLayout {
   private final SparseArray<Distance> dragDistanceYs = new SparseArray<>();
 
   private final SparseIntArray edgeViews = new SparseIntArray();
+
+  private final SparseArray<List<View>> hookList = new SparseArray<>();
 
   private ViewDragHelper viewDragHelper;
 
@@ -591,12 +595,41 @@ public class ViewDragLayout extends FrameLayout {
   }
 
   /**
-   * [NOTICED] this is not completed.
+   * Drag view as chain
    *
-   * @param chainEnable true if u want drag view like a chainAll, false otherwise.
+   * @param chainEnable true enable, false otherwise.
    */
-  private void chainWithAllView(boolean chainEnable) {
+  private void asChain(boolean chainEnable) {
     this.chainEnable = chainEnable;
+  }
+
+  /**
+   * Generate hook list that Target view hooks chain id
+   *
+   * @param targetId target view that owns hook
+   * @param hookId view which be hooked
+   */
+  private void hookWithSpecificView(final int targetId, final int[] hookId) {
+    addOnLayoutChangeListener(new OnLayoutChangeListener() {
+      @Override
+      public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
+          int oldTop, int oldRight, int oldBottom) {
+        View child = childViews.get(targetId);
+        if (child != null) {
+          List<View> hooks = new ArrayList<>();
+          for (int id : hookId) {
+            View view = childViews.get(id);
+            if (view != null) {
+              hooks.add(view);
+            }
+          }
+
+          hookList.put(targetId, hooks);
+        }
+
+        removeOnLayoutChangeListener(this);
+      }
+    });
   }
 
   /**
@@ -635,9 +668,23 @@ public class ViewDragLayout extends FrameLayout {
       int flag = instance.dragFlags.get(child.getId()) & (LEFT | RIGHT);
       Distance distanceX = instance.dragDistanceXs.get(child.getId());
 
+      List<View> hooks = instance.hookList.get(child.getId());
+
       switch (flag) {
         case LEFT:
           if (dx < 0) {
+            if (hooks != null) {
+              for (View hooked : hooks) {
+                Distance hookX = instance.dragDistanceXs.get(hooked.getId());
+                if (hookX != null) {
+                  int x = child.getLeft() - left;
+                  if (hooked.getLeft() - x >= hookX.getMin()) {
+                    hooked.offsetLeftAndRight(-x);
+                  }
+                }
+              }
+            }
+
             if (distanceX != null) {
               if (left >= distanceX.getMin()) {
                 return left;
@@ -649,6 +696,18 @@ public class ViewDragLayout extends FrameLayout {
 
         case RIGHT:
           if (dx > 0) {
+            if (hooks != null) {
+              for (View hooked : hooks) {
+                Distance hookX = instance.dragDistanceXs.get(hooked.getId());
+                if (hookX != null) {
+                  int x = child.getLeft() - left;
+                  if (hooked.getLeft() + x <= hookX.getMax()) {
+                    hooked.offsetLeftAndRight(x);
+                  }
+                }
+              }
+            }
+
             if (distanceX != null) {
               if (left <= distanceX.getMax()) {
                 return left;
@@ -659,6 +718,20 @@ public class ViewDragLayout extends FrameLayout {
           break;
 
         case (LEFT | RIGHT):
+          if (hooks != null) {
+            for (View hooked : hooks) {
+              Distance hookX = instance.dragDistanceXs.get(hooked.getId());
+              if (hookX != null) {
+                int x = child.getLeft() - left;
+                if (hooked.getLeft() - x >= hookX.getMin()) {
+                  hooked.offsetLeftAndRight(-x);
+                } else if (hooked.getLeft() + x <= hookX.getMax()) {
+                  hooked.offsetLeftAndRight(x);
+                }
+              }
+            }
+          }
+
           if (distanceX != null) {
             if (left >= distanceX.getMin() && left <= distanceX.getMax()) {
               return left;
@@ -827,6 +900,26 @@ public class ViewDragLayout extends FrameLayout {
           ViewCompat.postInvalidateOnAnimation(instance);
         }
       }
+
+      List<View> hooks = instance.hookList.get(releasedChild.getId());
+      if (hooks != null) {
+        for (View hooked : hooks) {
+          int hookedLeft = hooked.getLeft();
+          Distance hookedX = instance.dragDistanceXs.get(hooked.getId());
+          if (hookedX != null) {
+            int distanceThreshold = (hookedX.getMax() + hookedX.getMin()) / 2;
+            if (xvel < -VELOCITY_THRESHOLD || hooked.getLeft() <= distanceThreshold) {
+              hookedLeft = hookedX.getMin();
+            } else if (xvel > VELOCITY_THRESHOLD || hooked.getLeft() > distanceThreshold) {
+              hookedLeft = hookedX.getMax();
+            }
+
+            if (instance.viewDragHelper.smoothSlideViewTo(hooked, hookedLeft, hooked.getTop())) {
+              ViewCompat.postInvalidateOnAnimation(instance);
+            }
+          }
+        }
+      }
     }
 
     private void postVerticalAnimation(View releasedChild, float yvel) {
@@ -944,10 +1037,10 @@ public class ViewDragLayout extends FrameLayout {
     /**
      * [NOTICED] this only work at linear mode
      *
-     * @param chainEnable true if u want drag view like a chainAll, false otherwise
+     * @param chainEnable true if u want drag view like a asChain, false otherwise
      */
-    public Builder chainAll(boolean chainEnable) {
-      instance.chainWithAllView(chainEnable);
+    public Builder asChain(boolean chainEnable) {
+      instance.asChain(chainEnable);
       return this;
     }
 
@@ -955,10 +1048,10 @@ public class ViewDragLayout extends FrameLayout {
      * Chained view together while drag
      *
      * @param targetId target root view
-     * @param chainId the view you want to chainAll together
+     * @param chainId the view you want to asChain together
      */
-    public Builder chainWith(@IdRes int targetId, int... chainId) {
-      // FIXME: 2017/7/27 , specific chain list
+    public Builder hookWith(@IdRes int targetId, int... chainId) {
+      instance.hookWithSpecificView(targetId, chainId);
       return this;
     }
 
