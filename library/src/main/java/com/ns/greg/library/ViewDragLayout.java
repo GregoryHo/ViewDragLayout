@@ -28,9 +28,9 @@ public class ViewDragLayout extends FrameLayout {
 
   private static final Boolean DEBUG = false;
 
-  /*********************************
-   * Mode definitions
-   *********************************/
+  /*--------------------------------
+   * Type definitions
+   *-------------------------------*/
 
   public static final int HOVER_OVERLAY = 0;
 
@@ -43,9 +43,9 @@ public class ViewDragLayout extends FrameLayout {
 
   }
 
-  /*********************************
+  /*--------------------------------
    * Direction definitions
-   *********************************/
+   *-------------------------------*/
 
   public static final int LEFT = 1;
 
@@ -62,15 +62,15 @@ public class ViewDragLayout extends FrameLayout {
 
   }
 
-  /*********************************
+  /*--------------------------------
    * Drag Threshold
-   *********************************/
+   *-------------------------------*/
 
   private static final int VELOCITY_THRESHOLD = 50;
 
-  /*********************************
+  /*--------------------------------
    * General declaration
-   *********************************/
+   *-------------------------------*/
 
   private final SparseArray<View> childViews = new SparseArray<>();
 
@@ -94,9 +94,9 @@ public class ViewDragLayout extends FrameLayout {
 
   private int edgeFlag = 0;
 
-  /*********************************
-   * Constructor
-   *********************************/
+  /*--------------------------------
+   * Constructors
+   *-------------------------------*/
 
   public ViewDragLayout(Context context) {
     this(context, null);
