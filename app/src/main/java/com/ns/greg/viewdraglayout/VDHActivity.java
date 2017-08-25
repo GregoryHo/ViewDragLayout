@@ -35,7 +35,7 @@ public class VDHActivity extends AppCompatActivity {
         .setSpecificDragDirectionFlag(R.id.horizontal_hover_view,
             ViewDragLayout.LEFT | ViewDragLayout.RIGHT)
         .setDragX(dragX, 0)
-        .asChain(true)
+        .asChain()
         .create();
 
     /*--------------------------------
@@ -54,7 +54,7 @@ public class VDHActivity extends AppCompatActivity {
             ViewDragLayout.TOP | ViewDragLayout.BOTTOM)
         .setSpecificDragEdgeFlag(R.id.vertical_hover_view, ViewDragHelper.EDGE_TOP)
         .setDragY(dragY, 0)
-        .asChain(true)
+        .asChain()
         .create();
 
     /*--------------------------------
@@ -72,7 +72,21 @@ public class VDHActivity extends AppCompatActivity {
         .setSpecificDragDirectionFlag(R.id.hooked_hover_view,
             ViewDragLayout.LEFT | ViewDragLayout.RIGHT)
         .setSpecificDragX(R.id.hooked_bottom_view, dragX, 0)
+        .speedFactor(0.5f)
         .hookWith(R.id.hooked_hover_view, R.id.hooked_bottom_view)
+        .create();
+
+    /*--------------------------------
+     * Pull down
+     *-------------------------------*/
+    final ViewDragLayout pullDown = (ViewDragLayout) findViewById(R.id.pull_down_vdh);
+    final int pullY = convertDpToPixel(150f, getApplicationContext());
+    new ViewDragLayout.Builder(pullDown).setLayoutType(ViewDragLayout.HOVER_OVERLAY)
+        .setSpecificDragDirectionFlag(R.id.pull_hover_view,
+            ViewDragLayout.TOP | ViewDragLayout.BOTTOM)
+        .setDragY(0, pullY)
+        .speedFactor(0.5f)
+        .asPull()
         .create();
   }
 

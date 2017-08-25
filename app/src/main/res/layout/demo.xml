@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     >
 
   <com.ns.greg.library.ViewDragLayout
       android:id="@+id/horizontal_vdh"
       android:layout_width="match_parent"
       android:layout_height="75dp"
-      android:layout_alignParentRight="true"
       >
 
     <LinearLayout
@@ -24,7 +24,7 @@
           android:layout_width="match_parent"
           android:layout_height="match_parent"
           android:gravity="center"
-          android:text="Swipe Left!"
+          android:text="Swipe left"
           android:textColor="@android:color/white"
           android:textSize="16sp"
           />
@@ -48,8 +48,6 @@
       android:id="@+id/vertical_vdh"
       android:layout_width="match_parent"
       android:layout_height="75dp"
-      android:layout_alignParentRight="true"
-      android:layout_below="@+id/horizontal_vdh"
       android:layout_marginTop="20dp"
       >
 
@@ -65,7 +63,7 @@
           android:layout_width="match_parent"
           android:layout_height="match_parent"
           android:gravity="center"
-          android:text="Swipe Top!"
+          android:text="Swipe top"
           android:textColor="@android:color/white"
           android:textSize="16sp"
           />
@@ -89,8 +87,6 @@
       android:id="@+id/hooked_vdh"
       android:layout_width="match_parent"
       android:layout_height="75dp"
-      android:layout_alignParentRight="true"
-      android:layout_below="@+id/vertical_vdh"
       android:layout_marginTop="20dp"
       >
 
@@ -98,7 +94,7 @@
         android:id="@+id/hooked_hover_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/colorPrimaryDark"
+        android:background="@color/colorAccent"
         android:orientation="horizontal"
         >
 
@@ -106,7 +102,7 @@
           android:layout_width="match_parent"
           android:layout_height="match_parent"
           android:gravity="center"
-          android:text="Hook right!"
+          android:text="Hook right"
           android:textColor="@android:color/white"
           android:textSize="16sp"
           />
@@ -120,10 +116,39 @@
         android:layout_gravity="center"
         android:gravity="center"
         android:text="Hooked"
-        android:textColor="@android:color/holo_red_light"
+        android:textColor="@color/colorPrimaryDark"
         android:textSize="16sp"
         />
 
   </com.ns.greg.library.ViewDragLayout>
 
-</RelativeLayout>
+  <com.ns.greg.library.ViewDragLayout
+      android:id="@+id/pull_down_vdh"
+      android:layout_width="match_parent"
+      android:layout_height="150dp"
+      android:layout_marginTop="20dp"
+      >
+
+    <LinearLayout
+        android:id="@+id/pull_hover_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="top"
+        android:background="@color/colorPrimaryDark"
+        android:orientation="horizontal"
+        >
+
+      <TextView
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:gravity="center"
+          android:text="Pull down"
+          android:textColor="@android:color/white"
+          android:textSize="16sp"
+          />
+
+    </LinearLayout>
+
+  </com.ns.greg.library.ViewDragLayout>
+
+</LinearLayout>

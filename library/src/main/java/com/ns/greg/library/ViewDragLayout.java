@@ -48,13 +48,9 @@ public class ViewDragLayout extends FrameLayout {
    *-------------------------------*/
 
   public static final int LEFT = 1;
-
   public static final int TOP = 1 << 1;
-
   public static final int RIGHT = 1 << 2;
-
   public static final int BOTTOM = 1 << 3;
-
   public static final int DIRECTION_ALL = LEFT | TOP | RIGHT | BOTTOM;
 
   @IntDef(flag = true, value = { LEFT, TOP, RIGHT, BOTTOM, DIRECTION_ALL })
@@ -73,26 +69,18 @@ public class ViewDragLayout extends FrameLayout {
    *-------------------------------*/
 
   private final SparseArray<View> childViews = new SparseArray<>();
-
   private final SparseIntArray dragFlags = new SparseIntArray();
-
   private final SparseArray<Distance> dragDistanceXs = new SparseArray<>();
-
   private final SparseArray<Distance> dragDistanceYs = new SparseArray<>();
-
   private final SparseIntArray edgeViews = new SparseIntArray();
-
   private final SparseArray<List<View>> hookList = new SparseArray<>();
-
   private ViewDragHelper viewDragHelper;
-
   private boolean vdhEnable = true;
-
   private @HoverMode int layoutType = HOVER_OVERLAY;
-
   private boolean chainEnable = false;
-
   private int edgeFlag = 0;
+  private boolean pullEnable = false;
+  private float speedFactor = 1.0f;
 
   /*--------------------------------
    * Constructors
@@ -633,6 +621,24 @@ public class ViewDragLayout extends FrameLayout {
   }
 
   /**
+   * Enable the pull action
+   *
+   * @param pullEnable true enable, false disable
+   */
+  private void asPull(boolean pullEnable) {
+    this.pullEnable = pullEnable;
+  }
+
+  /**
+   * Sets the factor of speed
+   *
+   * @param speedFactor factor
+   */
+  private void setSpeedFactor(float speedFactor) {
+    this.speedFactor = speedFactor;
+  }
+
+  /**
    * VDH callback
    */
   private static class CustomViewDragHelperCallback extends ViewDragHelper.Callback {
@@ -667,9 +673,8 @@ public class ViewDragLayout extends FrameLayout {
     @Override public int clampViewPositionHorizontal(View child, int left, int dx) {
       int flag = instance.dragFlags.get(child.getId()) & (LEFT | RIGHT);
       Distance distanceX = instance.dragDistanceXs.get(child.getId());
-
       List<View> hooks = instance.hookList.get(child.getId());
-
+      int adjustedDx = (int) (dx * instance.speedFactor);
       switch (flag) {
         case LEFT:
           if (dx < 0) {
@@ -677,9 +682,8 @@ public class ViewDragLayout extends FrameLayout {
               for (View hooked : hooks) {
                 Distance hookX = instance.dragDistanceXs.get(hooked.getId());
                 if (hookX != null) {
-                  int x = child.getLeft() - left;
-                  if (hooked.getLeft() - x >= hookX.getMin()) {
-                    hooked.offsetLeftAndRight(-x);
+                  if (hooked.getLeft() + adjustedDx >= hookX.getMin()) {
+                    hooked.offsetLeftAndRight(adjustedDx);
                   }
                 }
               }
@@ -687,7 +691,7 @@ public class ViewDragLayout extends FrameLayout {
 
             if (distanceX != null) {
               if (left >= distanceX.getMin()) {
-                return left;
+                return child.getLeft() + adjustedDx;
               }
             }
           }
@@ -700,9 +704,8 @@ public class ViewDragLayout extends FrameLayout {
               for (View hooked : hooks) {
                 Distance hookX = instance.dragDistanceXs.get(hooked.getId());
                 if (hookX != null) {
-                  int x = child.getLeft() - left;
-                  if (hooked.getLeft() + x <= hookX.getMax()) {
-                    hooked.offsetLeftAndRight(x);
+                  if (hooked.getLeft() - adjustedDx <= hookX.getMax()) {
+                    hooked.offsetLeftAndRight(-adjustedDx);
                   }
                 }
               }
@@ -710,7 +713,7 @@ public class ViewDragLayout extends FrameLayout {
 
             if (distanceX != null) {
               if (left <= distanceX.getMax()) {
-                return left;
+                return child.getLeft() + adjustedDx;
               }
             }
           }
@@ -722,11 +725,10 @@ public class ViewDragLayout extends FrameLayout {
             for (View hooked : hooks) {
               Distance hookX = instance.dragDistanceXs.get(hooked.getId());
               if (hookX != null) {
-                int x = child.getLeft() - left;
-                if (hooked.getLeft() - x >= hookX.getMin()) {
-                  hooked.offsetLeftAndRight(-x);
-                } else if (hooked.getLeft() + x <= hookX.getMax()) {
-                  hooked.offsetLeftAndRight(x);
+                if (hooked.getLeft() + adjustedDx >= hookX.getMin()) {
+                  hooked.offsetLeftAndRight(adjustedDx);
+                } else if (hooked.getLeft() - adjustedDx <= hookX.getMax()) {
+                  hooked.offsetLeftAndRight(-adjustedDx);
                 }
               }
             }
@@ -734,7 +736,7 @@ public class ViewDragLayout extends FrameLayout {
 
           if (distanceX != null) {
             if (left >= distanceX.getMin() && left <= distanceX.getMax()) {
-              return left;
+              return child.getLeft() + adjustedDx;
             }
           }
 
@@ -750,12 +752,13 @@ public class ViewDragLayout extends FrameLayout {
     @Override public int clampViewPositionVertical(View child, int top, int dy) {
       int flag = instance.dragFlags.get(child.getId()) & (TOP | BOTTOM);
       Distance distanceY = instance.dragDistanceYs.get(child.getId());
+      int adjustedDy = (int) (dy * instance.speedFactor);
       switch (flag) {
         case TOP:
           if (dy < 0) {
             if (distanceY != null) {
               if (top >= distanceY.getMin()) {
-                return top;
+                return child.getTop() + adjustedDy;
               }
             }
           }
@@ -766,7 +769,7 @@ public class ViewDragLayout extends FrameLayout {
           if (dy > 0) {
             if (distanceY != null) {
               if (top <= distanceY.getMax()) {
-                return top;
+                return child.getTop() + adjustedDy;
               }
             }
           }
@@ -776,7 +779,7 @@ public class ViewDragLayout extends FrameLayout {
         case (TOP | BOTTOM):
           if (distanceY != null) {
             if (top >= distanceY.getMin() && top <= distanceY.getMax()) {
-              return top;
+              return child.getTop() + adjustedDy;
             }
           }
 
@@ -843,15 +846,19 @@ public class ViewDragLayout extends FrameLayout {
     @Override public void onViewReleased(View releasedChild, float xvel, float yvel) {
       switch (instance.layoutType) {
         case HOVER_OVERLAY:
-          postAnimation(releasedChild, xvel, yvel);
+          if (instance.pullEnable) {
+            pulledAnimation(releasedChild);
+          } else {
+            releasedAnimation(releasedChild, xvel, yvel);
+          }
           break;
 
         case HOVER_HORIZONTAL:
-          postHorizontalAnimation(releasedChild, xvel);
+          releasedHorizontalAnimation(releasedChild, xvel);
           break;
 
         case HOVER_VERTICAL:
-          postVerticalAnimation(releasedChild, yvel);
+          releasedVerticalAnimation(releasedChild, yvel);
           break;
 
         default:
@@ -859,7 +866,17 @@ public class ViewDragLayout extends FrameLayout {
       }
     }
 
-    private void postAnimation(View releasedChild, float xvel, float yvel) {
+    private void pulledAnimation(View releasedChild) {
+      Distance x = instance.dragDistanceXs.get(releasedChild.getId());
+      Distance y = instance.dragDistanceYs.get(releasedChild.getId());
+      int left = x == null ? releasedChild.getLeft() : x.getMin();
+      int top = y == null ? releasedChild.getTop() : y.getMin();
+      if (instance.viewDragHelper.smoothSlideViewTo(releasedChild, left, top)) {
+        ViewCompat.postInvalidateOnAnimation(instance);
+      }
+    }
+
+    private void releasedAnimation(View releasedChild, float xvel, float yvel) {
       int left = releasedChild.getLeft();
       int top = releasedChild.getTop();
 
@@ -883,7 +900,7 @@ public class ViewDragLayout extends FrameLayout {
       }
     }
 
-    private void postHorizontalAnimation(View releasedChild, float xvel) {
+    private void releasedHorizontalAnimation(View releasedChild, float xvel) {
       Distance x = instance.dragDistanceXs.get(releasedChild.getId());
       int left = releasedChild.getLeft();
 
@@ -922,7 +939,7 @@ public class ViewDragLayout extends FrameLayout {
       }
     }
 
-    private void postVerticalAnimation(View releasedChild, float yvel) {
+    private void releasedVerticalAnimation(View releasedChild, float yvel) {
       Distance y = instance.dragDistanceYs.get(releasedChild.getId());
       if (y != null) {
         int top = yvel < 0 ? y.getMin() : y.getMax();
@@ -1035,12 +1052,11 @@ public class ViewDragLayout extends FrameLayout {
     }
 
     /**
+     * Drags the layout as chain
      * [NOTICED] this only work at linear mode
-     *
-     * @param chainEnable true if u want drag view like a asChain, false otherwise
      */
-    public Builder asChain(boolean chainEnable) {
-      instance.asChain(chainEnable);
+    public Builder asChain() {
+      instance.asChain(true);
       return this;
     }
 
@@ -1052,6 +1068,19 @@ public class ViewDragLayout extends FrameLayout {
      */
     public Builder hookWith(@IdRes int targetId, int... chainId) {
       instance.hookWithSpecificView(targetId, chainId);
+      return this;
+    }
+
+    /**
+     * No drags, just pull
+     */
+    public Builder asPull() {
+      instance.asPull(true);
+      return this;
+    }
+
+    public Builder speedFactor(float speedFactor) {
+      instance.setSpeedFactor(speedFactor);
       return this;
     }
 
