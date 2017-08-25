@@ -31,7 +31,7 @@ public class VDHActivity extends AppCompatActivity {
         horizontalHover.dragSpecificView(R.id.horizontal_hover_view, dragX, 0);
       }
     });
-    new ViewDragLayout.Builder(horizontalHover).setLayoutType(ViewDragLayout.HOVER_HORIZONTAL)
+    new ViewDragLayout.Builder(horizontalHover).setLayoutType(ViewDragLayout.HOVER_LINEAR_HORIZONTAL)
         .setSpecificDragDirectionFlag(R.id.horizontal_hover_view,
             ViewDragLayout.LEFT | ViewDragLayout.RIGHT)
         .setDragX(dragX, 0)
@@ -49,7 +49,7 @@ public class VDHActivity extends AppCompatActivity {
         verticalHover.dragSpecificView(R.id.vertical_hover_view, 0, dragY);
       }
     });
-    new ViewDragLayout.Builder(verticalHover).setLayoutType(ViewDragLayout.HOVER_VERTICAL)
+    new ViewDragLayout.Builder(verticalHover).setLayoutType(ViewDragLayout.HOVER_LINEAR_VERTICAL)
         .setSpecificDragDirectionFlag(R.id.vertical_hover_view,
             ViewDragLayout.TOP | ViewDragLayout.BOTTOM)
         .setSpecificDragEdgeFlag(R.id.vertical_hover_view, ViewDragHelper.EDGE_TOP)
@@ -68,7 +68,7 @@ public class VDHActivity extends AppCompatActivity {
         hookHover.dragSpecificView(R.id.hooked_bottom_view, hookX, 0);
       }
     });
-    new ViewDragLayout.Builder(hookHover).setLayoutType(ViewDragLayout.HOVER_HORIZONTAL)
+    new ViewDragLayout.Builder(hookHover).setLayoutType(ViewDragLayout.HOVER_LINEAR_HORIZONTAL)
         .setSpecificDragDirectionFlag(R.id.hooked_hover_view,
             ViewDragLayout.LEFT | ViewDragLayout.RIGHT)
         .setSpecificDragX(R.id.hooked_bottom_view, dragX, 0)
@@ -81,7 +81,7 @@ public class VDHActivity extends AppCompatActivity {
      *-------------------------------*/
     final ViewDragLayout pullDown = (ViewDragLayout) findViewById(R.id.pull_down_vdh);
     final int pullY = convertDpToPixel(150f, getApplicationContext());
-    new ViewDragLayout.Builder(pullDown).setLayoutType(ViewDragLayout.HOVER_OVERLAY)
+    new ViewDragLayout.Builder(pullDown).setLayoutType(ViewDragLayout.HOVER_FRAME_OVERLAY)
         .setSpecificDragDirectionFlag(R.id.pull_hover_view,
             ViewDragLayout.TOP | ViewDragLayout.BOTTOM)
         .setDragY(0, pullY)

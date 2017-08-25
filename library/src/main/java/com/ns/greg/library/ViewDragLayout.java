@@ -32,13 +32,13 @@ public class ViewDragLayout extends FrameLayout {
    * Type definitions
    *-------------------------------*/
 
-  public static final int HOVER_OVERLAY = 0;
+  public static final int HOVER_FRAME_OVERLAY = 0;
 
-  public static final int HOVER_HORIZONTAL = 1;
+  public static final int HOVER_LINEAR_HORIZONTAL = 1;
 
-  public static final int HOVER_VERTICAL = 2;
+  public static final int HOVER_LINEAR_VERTICAL = 2;
 
-  @IntDef({ HOVER_OVERLAY, HOVER_HORIZONTAL, HOVER_VERTICAL }) @Retention(RetentionPolicy.SOURCE)
+  @IntDef({ HOVER_FRAME_OVERLAY, HOVER_LINEAR_HORIZONTAL, HOVER_LINEAR_VERTICAL }) @Retention(RetentionPolicy.SOURCE)
   public @interface HoverMode {
 
   }
@@ -76,7 +76,7 @@ public class ViewDragLayout extends FrameLayout {
   private final SparseArray<List<View>> hookList = new SparseArray<>();
   private ViewDragHelper viewDragHelper;
   private boolean vdhEnable = true;
-  private @HoverMode int layoutType = HOVER_OVERLAY;
+  private @HoverMode int layoutType = HOVER_FRAME_OVERLAY;
   private boolean chainEnable = false;
   private int edgeFlag = 0;
   private boolean pullEnable = false;
@@ -126,8 +126,8 @@ public class ViewDragLayout extends FrameLayout {
   /**
    * Measure view group with current layout type
    *
-   * @param layoutType layout type {@link #HOVER_OVERLAY}, {@link #HOVER_HORIZONTAL}, {@link
-   * #HOVER_VERTICAL}
+   * @param layoutType layout type {@link #HOVER_FRAME_OVERLAY}, {@link #HOVER_LINEAR_HORIZONTAL}, {@link
+   * #HOVER_LINEAR_VERTICAL}
    * @param widthMeasureSpec measure spec
    * @param heightMeasureSpec measure spec
    * @param childCount group child count
@@ -166,17 +166,17 @@ public class ViewDragLayout extends FrameLayout {
         int measureHeight = child.getMeasuredHeight();
 
         switch (layoutType) {
-          case HOVER_OVERLAY:
+          case HOVER_FRAME_OVERLAY:
             width = width < measureWidth ? measureWidth : width;
             height = height < measureHeight ? measureHeight : height;
             break;
 
-          case HOVER_HORIZONTAL:
+          case HOVER_LINEAR_HORIZONTAL:
             width += measureWidth;
             height = height < measureHeight ? measureHeight : height;
             break;
 
-          case HOVER_VERTICAL:
+          case HOVER_LINEAR_VERTICAL:
             width = width < measureWidth ? measureWidth : width;
             height += measureHeight;
             break;
@@ -228,15 +228,15 @@ public class ViewDragLayout extends FrameLayout {
     int childCount = childViews.size();
     if (childCount > 0) {
       switch (layoutType) {
-        case HOVER_OVERLAY:
+        case HOVER_FRAME_OVERLAY:
           layoutOverlap(l, t, r, b, childCount);
           break;
 
-        case HOVER_HORIZONTAL:
+        case HOVER_LINEAR_HORIZONTAL:
           layoutHorizontal(t, b, childCount);
           break;
 
-        case HOVER_VERTICAL:
+        case HOVER_LINEAR_VERTICAL:
           layoutVertical(l, r, childCount);
           break;
 
@@ -412,8 +412,8 @@ public class ViewDragLayout extends FrameLayout {
   /**
    * Sets view group layout type since we can't extends other layout
    *
-   * @param layoutType layout type {@link #HOVER_OVERLAY}, {@link #HOVER_HORIZONTAL}, {@link
-   * #HOVER_VERTICAL}
+   * @param layoutType layout type {@link #HOVER_FRAME_OVERLAY}, {@link #HOVER_LINEAR_HORIZONTAL}, {@link
+   * #HOVER_LINEAR_VERTICAL}
    */
   private void setLayoutType(@HoverMode int layoutType) {
     this.layoutType = layoutType;
@@ -800,16 +800,16 @@ public class ViewDragLayout extends FrameLayout {
     public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
       if (instance.chainEnable) {
         switch (instance.layoutType) {
-          case HOVER_OVERLAY:
+          case HOVER_FRAME_OVERLAY:
             onHorizontalViewPositionChanged(changedView, dx);
             onVerticalViewPositionChanged(changedView, dy);
             break;
 
-          case HOVER_HORIZONTAL:
+          case HOVER_LINEAR_HORIZONTAL:
             onHorizontalViewPositionChanged(changedView, dx);
             break;
 
-          case HOVER_VERTICAL:
+          case HOVER_LINEAR_VERTICAL:
             onVerticalViewPositionChanged(changedView, dy);
             break;
 
@@ -845,7 +845,7 @@ public class ViewDragLayout extends FrameLayout {
 
     @Override public void onViewReleased(View releasedChild, float xvel, float yvel) {
       switch (instance.layoutType) {
-        case HOVER_OVERLAY:
+        case HOVER_FRAME_OVERLAY:
           if (instance.pullEnable) {
             pulledAnimation(releasedChild);
           } else {
@@ -853,11 +853,11 @@ public class ViewDragLayout extends FrameLayout {
           }
           break;
 
-        case HOVER_HORIZONTAL:
+        case HOVER_LINEAR_HORIZONTAL:
           releasedHorizontalAnimation(releasedChild, xvel);
           break;
 
-        case HOVER_VERTICAL:
+        case HOVER_LINEAR_VERTICAL:
           releasedVerticalAnimation(releasedChild, yvel);
           break;
 
@@ -964,8 +964,8 @@ public class ViewDragLayout extends FrameLayout {
     /**
      * Sets view group layout type since we can't extends other layout
      *
-     * @param layoutType layout type {@link #HOVER_OVERLAY}, {@link #HOVER_HORIZONTAL}, {@link
-     * #HOVER_VERTICAL}
+     * @param layoutType layout type {@link #HOVER_FRAME_OVERLAY}, {@link #HOVER_LINEAR_HORIZONTAL}, {@link
+     * #HOVER_LINEAR_VERTICAL}
      */
     public Builder setLayoutType(@HoverMode int layoutType) {
       instance.setLayoutType(layoutType);
