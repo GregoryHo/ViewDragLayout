@@ -38,8 +38,8 @@ public class ViewDragLayout extends FrameLayout {
 
   public static final int HOVER_LINEAR_VERTICAL = 2;
 
-  @IntDef({ HOVER_FRAME_OVERLAY, HOVER_LINEAR_HORIZONTAL, HOVER_LINEAR_VERTICAL }) @Retention(RetentionPolicy.SOURCE)
-  public @interface HoverMode {
+  @IntDef({ HOVER_FRAME_OVERLAY, HOVER_LINEAR_HORIZONTAL, HOVER_LINEAR_VERTICAL })
+  @Retention(RetentionPolicy.SOURCE) public @interface HoverMode {
 
   }
 
@@ -126,7 +126,8 @@ public class ViewDragLayout extends FrameLayout {
   /**
    * Measure view group with current layout type
    *
-   * @param layoutType layout type {@link #HOVER_FRAME_OVERLAY}, {@link #HOVER_LINEAR_HORIZONTAL}, {@link
+   * @param layoutType layout type {@link #HOVER_FRAME_OVERLAY}, {@link #HOVER_LINEAR_HORIZONTAL},
+   * {@link
    * #HOVER_LINEAR_VERTICAL}
    * @param widthMeasureSpec measure spec
    * @param heightMeasureSpec measure spec
@@ -343,6 +344,14 @@ public class ViewDragLayout extends FrameLayout {
     }
   }
 
+  @Override public boolean dispatchTouchEvent(MotionEvent ev) {
+    if (getParent() != null && ev.getAction() == MotionEvent.ACTION_DOWN) {
+      getParent().requestDisallowInterceptTouchEvent(true);
+    }
+
+    return super.dispatchTouchEvent(ev);
+  }
+
   @Override public boolean onInterceptTouchEvent(MotionEvent ev) {
     if (vdhEnable) {
       final int action = MotionEventCompat.getActionMasked(ev);
@@ -412,7 +421,8 @@ public class ViewDragLayout extends FrameLayout {
   /**
    * Sets view group layout type since we can't extends other layout
    *
-   * @param layoutType layout type {@link #HOVER_FRAME_OVERLAY}, {@link #HOVER_LINEAR_HORIZONTAL}, {@link
+   * @param layoutType layout type {@link #HOVER_FRAME_OVERLAY}, {@link #HOVER_LINEAR_HORIZONTAL},
+   * {@link
    * #HOVER_LINEAR_VERTICAL}
    */
   private void setLayoutType(@HoverMode int layoutType) {
@@ -961,7 +971,9 @@ public class ViewDragLayout extends FrameLayout {
     /**
      * Sets view group layout type since we can't extends other layout
      *
-     * @param layoutType layout type {@link #HOVER_FRAME_OVERLAY}, {@link #HOVER_LINEAR_HORIZONTAL}, {@link
+     * @param layoutType layout type {@link #HOVER_FRAME_OVERLAY}, {@link
+     * #HOVER_LINEAR_HORIZONTAL},
+     * {@link
      * #HOVER_LINEAR_VERTICAL}
      */
     public Builder setLayoutType(@HoverMode int layoutType) {

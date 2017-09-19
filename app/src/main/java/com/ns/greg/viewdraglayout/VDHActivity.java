@@ -6,9 +6,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.widget.ViewDragHelper;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
-
 import android.view.View;
-import com.ns.greg.library.ViewDragLayout;
+import com.ns.greg.library.easy_view_dragger.ViewDragLayout;
 
 /**
  * Created by Gregory on 2017/3/17.
