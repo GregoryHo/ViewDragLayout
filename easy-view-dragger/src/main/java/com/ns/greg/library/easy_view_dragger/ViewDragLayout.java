@@ -346,7 +346,7 @@ public class ViewDragLayout extends FrameLayout {
 
   @Override public boolean dispatchTouchEvent(MotionEvent ev) {
     if (getParent() != null && ev.getAction() == MotionEvent.ACTION_DOWN) {
-      getParent().requestDisallowInterceptTouchEvent(true);
+      getParent().requestDisallowInterceptTouchEvent(vdhEnable);
     }
 
     return super.dispatchTouchEvent(ev);
