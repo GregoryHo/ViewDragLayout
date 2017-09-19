@@ -1,4 +1,4 @@
-package com.ns.greg.library;
+package com.ns.greg.library.easy_view_dragger;
 
 import android.content.Context;
 import android.support.annotation.IdRes;
