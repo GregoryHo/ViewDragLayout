@@ -24,7 +24,7 @@ import java.util.List;
  */
 public class ViewDragLayout extends FrameLayout {
 
-  private static final String TAG = "VDHLayout";
+  private static final String TAG = "ViewDragLayout";
 
   private static final Boolean DEBUG = false;
 
@@ -59,10 +59,11 @@ public class ViewDragLayout extends FrameLayout {
   }
 
   /*--------------------------------
-   * Drag Threshold
+   * Constant declaration
    *-------------------------------*/
 
   private static final int VELOCITY_THRESHOLD = 50;
+  private static final long DISALLOW_TIME = 250;
 
   /*--------------------------------
    * General declaration
@@ -81,6 +82,7 @@ public class ViewDragLayout extends FrameLayout {
   private int edgeFlag = 0;
   private boolean pullEnable = false;
   private float speedFactor = 1.0f;
+  private long dispatchingTime;
 
   /*--------------------------------
    * Constructors
@@ -345,11 +347,33 @@ public class ViewDragLayout extends FrameLayout {
   }
 
   @Override public boolean dispatchTouchEvent(MotionEvent ev) {
-    if (getParent() != null && ev.getAction() == MotionEvent.ACTION_DOWN) {
-      getParent().requestDisallowInterceptTouchEvent(vdhEnable);
+    int action = MotionEventCompat.getActionMasked(ev);
+    switch (action) {
+      case MotionEvent.ACTION_DOWN:
+        dispatchingTime = System.currentTimeMillis() + DISALLOW_TIME;
+        break;
+
+      case MotionEvent.ACTION_MOVE:
+        if (dispatchingTime > 0 && System.currentTimeMillis() >= dispatchingTime) {
+          requestParentDisallowInterceptTouchEvent(true);
+        }
+
+        break;
+
+      case MotionEvent.ACTION_CANCEL:
+      case MotionEvent.ACTION_UP:
+        dispatchingTime = -1;
+        requestParentDisallowInterceptTouchEvent(false);
+        break;
     }
 
     return super.dispatchTouchEvent(ev);
+  }
+
+  private void requestParentDisallowInterceptTouchEvent(boolean request) {
+    if (getParent() != null) {
+      getParent().requestDisallowInterceptTouchEvent(request);
+    }
   }
 
   @Override public boolean onInterceptTouchEvent(MotionEvent ev) {
