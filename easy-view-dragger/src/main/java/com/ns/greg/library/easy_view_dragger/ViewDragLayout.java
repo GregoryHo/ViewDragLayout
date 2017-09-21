@@ -63,7 +63,7 @@ public class ViewDragLayout extends FrameLayout {
    *-------------------------------*/
 
   private static final int VELOCITY_THRESHOLD = 50;
-  private static final long DISALLOW_TIME = 250;
+  private static final long PRESS_TIME = 200;
 
   /*--------------------------------
    * General declaration
@@ -83,6 +83,7 @@ public class ViewDragLayout extends FrameLayout {
   private boolean pullEnable = false;
   private float speedFactor = 1.0f;
   private long dispatchingTime;
+  private long pressTime = PRESS_TIME;
 
   /*--------------------------------
    * Constructors
@@ -346,30 +347,6 @@ public class ViewDragLayout extends FrameLayout {
     }
   }
 
-  @Override public boolean dispatchTouchEvent(MotionEvent ev) {
-    int action = MotionEventCompat.getActionMasked(ev);
-    switch (action) {
-      case MotionEvent.ACTION_DOWN:
-        dispatchingTime = System.currentTimeMillis() + DISALLOW_TIME;
-        break;
-
-      case MotionEvent.ACTION_MOVE:
-        if (dispatchingTime > 0 && System.currentTimeMillis() >= dispatchingTime) {
-          requestParentDisallowInterceptTouchEvent(true);
-        }
-
-        break;
-
-      case MotionEvent.ACTION_CANCEL:
-      case MotionEvent.ACTION_UP:
-        dispatchingTime = -1;
-        requestParentDisallowInterceptTouchEvent(false);
-        break;
-    }
-
-    return super.dispatchTouchEvent(ev);
-  }
-
   private void requestParentDisallowInterceptTouchEvent(boolean request) {
     if (getParent() != null) {
       getParent().requestDisallowInterceptTouchEvent(request);
@@ -393,17 +370,45 @@ public class ViewDragLayout extends FrameLayout {
 
   @Override public boolean onTouchEvent(MotionEvent event) {
     if (vdhEnable) {
-      try {
-        viewDragHelper.processTouchEvent(event);
-      } catch (Exception ex) {
-        ex.printStackTrace();
-        return false;
+      final int action = MotionEventCompat.getActionMasked(event);
+      switch (action) {
+        case MotionEvent.ACTION_DOWN:
+          dispatchingTime = System.currentTimeMillis() + PRESS_TIME;
+          break;
+
+        case MotionEvent.ACTION_MOVE:
+          if (System.currentTimeMillis() >= dispatchingTime) {
+            requestParentDisallowInterceptTouchEvent(true);
+            break;
+          } else {
+            return true;
+          }
+
+        case MotionEvent.ACTION_CANCEL:
+        case MotionEvent.ACTION_UP:
+          dispatchingTime = -1;
+          requestParentDisallowInterceptTouchEvent(false);
+          break;
+
+        default:
+          break;
       }
 
-      return true;
+      return vdhPorcessTouchEvent(event);
     }
 
     return super.onTouchEvent(event);
+  }
+
+  private boolean vdhPorcessTouchEvent(MotionEvent event) {
+    try {
+      viewDragHelper.processTouchEvent(event);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      return false;
+    }
+
+    return true;
   }
 
   @Override public void computeScroll() {
@@ -665,10 +670,19 @@ public class ViewDragLayout extends FrameLayout {
   /**
    * Sets the factor of speed
    *
-   * @param speedFactor factor
+   * @param speedFactor factor that directly proportional to speed
    */
   private void setSpeedFactor(float speedFactor) {
     this.speedFactor = speedFactor;
+  }
+
+  /**
+   * Sets the press time that trigger drag
+   *
+   * @param pressTime press time
+   */
+  private void setPressTime(long pressTime) {
+    this.pressTime = pressTime;
   }
 
   /**
@@ -1112,8 +1126,23 @@ public class ViewDragLayout extends FrameLayout {
       return this;
     }
 
+    /**
+     * Sets the factor of speed
+     *
+     * @param speedFactor factor that directly proportional to speed
+     */
     public Builder speedFactor(float speedFactor) {
       instance.setSpeedFactor(speedFactor);
+      return this;
+    }
+
+    /**
+     * Sets the press time that trigger drag
+     *
+     * @param pressTime press time
+     */
+    public Builder pressTime(long pressTime) {
+      instance.setPressTime(pressTime);
       return this;
     }
 
