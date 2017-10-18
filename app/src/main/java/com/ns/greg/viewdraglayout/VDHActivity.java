@@ -7,6 +7,7 @@ import android.support.v4.widget.ViewDragHelper;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.widget.Toast;
 import com.ns.greg.library.easy_view_dragger.ViewDragLayout;
 
 /**
@@ -30,12 +31,19 @@ public class VDHActivity extends AppCompatActivity {
         horizontalHover.dragSpecificView(R.id.horizontal_hover_view, dragX, 0);
       }
     });
-    new ViewDragLayout.Builder(horizontalHover).setLayoutType(ViewDragLayout.HOVER_LINEAR_HORIZONTAL)
+    new ViewDragLayout.Builder(horizontalHover).setLayoutType(
+        ViewDragLayout.HOVER_LINEAR_HORIZONTAL)
         .setSpecificDragDirectionFlag(R.id.horizontal_hover_view,
             ViewDragLayout.LEFT | ViewDragLayout.RIGHT)
         .setDragX(dragX, 0)
         .asChain()
         .create();
+
+    horizontalHover.setOnClickListener(new View.OnClickListener() {
+      @Override public void onClick(View v) {
+        Toast.makeText(getApplicationContext(), "On clicked", Toast.LENGTH_SHORT).show();
+      }
+    });
 
     /*--------------------------------
      * Swipe top

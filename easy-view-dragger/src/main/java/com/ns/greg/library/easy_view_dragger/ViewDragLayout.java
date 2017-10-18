@@ -386,6 +386,10 @@ public class ViewDragLayout extends FrameLayout {
 
         case MotionEvent.ACTION_CANCEL:
         case MotionEvent.ACTION_UP:
+          if (System.currentTimeMillis() < dispatchingTime) {
+            performClick();
+          }
+
           dispatchingTime = -1;
           requestParentDisallowInterceptTouchEvent(false);
           break;
@@ -394,13 +398,13 @@ public class ViewDragLayout extends FrameLayout {
           break;
       }
 
-      return vdhPorcessTouchEvent(event);
+      return vdhProcessTouchEvent(event);
     }
 
     return super.onTouchEvent(event);
   }
 
-  private boolean vdhPorcessTouchEvent(MotionEvent event) {
+  private boolean vdhProcessTouchEvent(MotionEvent event) {
     try {
       viewDragHelper.processTouchEvent(event);
     } catch (Exception ex) {
