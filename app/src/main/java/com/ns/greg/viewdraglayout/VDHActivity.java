@@ -28,7 +28,7 @@ public class VDHActivity extends AppCompatActivity {
     final int dragX = convertDpToPixel(100f, getApplicationContext());
     findViewById(R.id.horizontal_bottom_view).setOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View v) {
-        horizontalHover.dragSpecificView(R.id.horizontal_hover_view, dragX, 0);
+        horizontalHover.resetSpecificView(R.id.horizontal_hover_view);
       }
     });
     new ViewDragLayout.Builder(horizontalHover).setLayoutType(
@@ -53,7 +53,7 @@ public class VDHActivity extends AppCompatActivity {
     final int dragY = convertDpToPixel(75f, getApplicationContext());
     findViewById(R.id.vertical_bottom_view).setOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View v) {
-        verticalHover.dragSpecificView(R.id.vertical_hover_view, 0, dragY);
+        verticalHover.resetSpecificView(R.id.vertical_hover_view);
       }
     });
     new ViewDragLayout.Builder(verticalHover).setLayoutType(ViewDragLayout.HOVER_LINEAR_VERTICAL)
@@ -72,7 +72,7 @@ public class VDHActivity extends AppCompatActivity {
     final int hookX = convertDpToPixel(100f, getApplicationContext());
     findViewById(R.id.hooked_bottom_view).setOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View v) {
-        hookHover.dragSpecificView(R.id.hooked_bottom_view, hookX, 0);
+        hookHover.resetSpecificView(R.id.hooked_bottom_view);
       }
     });
     new ViewDragLayout.Builder(hookHover).setLayoutType(ViewDragLayout.HOVER_LINEAR_HORIZONTAL)

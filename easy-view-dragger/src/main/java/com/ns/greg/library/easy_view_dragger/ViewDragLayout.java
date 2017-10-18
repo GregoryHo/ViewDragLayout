@@ -452,6 +452,24 @@ public class ViewDragLayout extends FrameLayout {
   }
 
   /**
+   * Resets specific view.
+   *
+   * @param childId specific view id
+   */
+  public void resetSpecificView(int childId) {
+    View hoverView = childViews.get(childId);
+    if (hoverView != null) {
+      Distance x = dragDistanceXs.get(childId);
+      Distance y = dragDistanceYs.get(childId);
+      int left = x != null ? x.getStartPoint() : hoverView.getLeft();
+      int top = y != null ? y.getStartPoint() : hoverView.getTop();
+      if (viewDragHelper.smoothSlideViewTo(hoverView, left, top)) {
+        ViewCompat.postInvalidateOnAnimation(this);
+      }
+    }
+  }
+
+  /**
    * Sets view group layout type since we can't extends other layout
    *
    * @param layoutType layout type {@link #HOVER_FRAME_OVERLAY}, {@link #HOVER_LINEAR_HORIZONTAL},
