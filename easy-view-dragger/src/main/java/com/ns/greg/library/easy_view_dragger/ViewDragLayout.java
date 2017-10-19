@@ -373,7 +373,7 @@ public class ViewDragLayout extends FrameLayout {
       final int action = MotionEventCompat.getActionMasked(event);
       switch (action) {
         case MotionEvent.ACTION_DOWN:
-          dispatchingTime = System.currentTimeMillis() + PRESS_TIME;
+          dispatchingTime = System.currentTimeMillis() + pressTime;
           break;
 
         case MotionEvent.ACTION_MOVE:

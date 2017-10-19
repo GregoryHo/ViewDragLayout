@@ -42,6 +42,7 @@ public class VDHActivity extends AppCompatActivity {
     horizontalHover.setOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View v) {
         Toast.makeText(getApplicationContext(), "On clicked", Toast.LENGTH_SHORT).show();
+        horizontalHover.resetSpecificView(R.id.horizontal_hover_view);
       }
     });
 
