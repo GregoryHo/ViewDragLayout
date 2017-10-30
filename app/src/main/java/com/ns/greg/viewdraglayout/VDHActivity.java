@@ -79,7 +79,7 @@ public class VDHActivity extends AppCompatActivity {
     new ViewDragLayout.Builder(hookHover).setLayoutType(ViewDragLayout.HOVER_LINEAR_HORIZONTAL)
         .setSpecificDragDirectionFlag(R.id.hooked_hover_view,
             ViewDragLayout.LEFT | ViewDragLayout.RIGHT)
-        .setSpecificDragX(R.id.hooked_bottom_view, dragX, 0)
+        .setSpecificDragX(R.id.hooked_bottom_view, hookX, 0)
         .speedFactor(0.5f)
         .hookWith(R.id.hooked_hover_view, R.id.hooked_bottom_view)
         .create();

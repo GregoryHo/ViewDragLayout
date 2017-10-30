@@ -33,9 +33,7 @@ public class ViewDragLayout extends FrameLayout {
    *-------------------------------*/
 
   public static final int HOVER_FRAME_OVERLAY = 0;
-
   public static final int HOVER_LINEAR_HORIZONTAL = 1;
-
   public static final int HOVER_LINEAR_VERTICAL = 2;
 
   @IntDef({ HOVER_FRAME_OVERLAY, HOVER_LINEAR_HORIZONTAL, HOVER_LINEAR_VERTICAL })
@@ -69,7 +67,7 @@ public class ViewDragLayout extends FrameLayout {
    * General declaration
    *-------------------------------*/
 
-  private final SparseArray<View> childViews = new SparseArray<>();
+  private final List<View> childViews = new ArrayList<>();
   private final SparseIntArray dragFlags = new SparseIntArray();
   private final SparseArray<Distance> dragDistanceXs = new SparseArray<>();
   private final SparseArray<Distance> dragDistanceYs = new SparseArray<>();
@@ -119,7 +117,7 @@ public class ViewDragLayout extends FrameLayout {
     childViews.clear();
     for (int i = 0; i < childCount; i++) {
       View view = getChildAt(i);
-      childViews.put(view.getId(), view);
+      childViews.add(view);
     }
 
     measureChildren(widthMeasureSpec, heightMeasureSpec);
@@ -140,10 +138,8 @@ public class ViewDragLayout extends FrameLayout {
       int heightMeasureSpec, int childCount) {
     int widthMode = MeasureSpec.getMode(widthMeasureSpec);
     int widthSize = MeasureSpec.getSize(widthMeasureSpec);
-
     int heightMode = MeasureSpec.getMode(heightMeasureSpec);
     int heightSize = MeasureSpec.getSize(heightMeasureSpec);
-
     int offsetLeftAndRight = getPaddingLeft() + getPaddingRight();
     int offsetTopAndBottom = getPaddingTop() + getPaddingBottom();
     if (DEBUG) {
@@ -158,17 +154,14 @@ public class ViewDragLayout extends FrameLayout {
 
     int width = 0;
     int height = 0;
-
     if (widthMode == MeasureSpec.EXACTLY && heightMode == MeasureSpec.EXACTLY) {
       width = widthSize;
       height = heightSize;
     } else {
       for (int index = 0; index < childCount; index++) {
-        View child = childViews.valueAt(index);
-
+        View child = childViews.get(index);
         int measureWidth = child.getMeasuredWidth();
         int measureHeight = child.getMeasuredHeight();
-
         switch (layoutType) {
           case HOVER_FRAME_OVERLAY:
             width = width < measureWidth ? measureWidth : width;
@@ -261,7 +254,7 @@ public class ViewDragLayout extends FrameLayout {
    */
   private void layoutOverlap(int l, int t, int r, int b, int childCount) {
     for (int index = 0; index < childCount; index++) {
-      View child = childViews.valueAt(index);
+      View child = childViews.get(index);
       int childWidth = child.getMeasuredWidth();
       int childHeight = child.getMeasuredHeight();
       int left = r - l - childWidth;
@@ -287,11 +280,11 @@ public class ViewDragLayout extends FrameLayout {
    * @param childCount child count
    */
   private void layoutHorizontal(int t, int b, int childCount) {
-    boolean isInit = childViews.valueAt(0).getLeft() == 0;
+    boolean isInit = childViews.get(0).getLeft() == 0;
     int offset = 0;
 
     for (int index = 0; index < childCount; index++) {
-      View child = childViews.valueAt(index);
+      View child = childViews.get(index);
       int childWidth = child.getMeasuredWidth();
       int childHeight = child.getMeasuredHeight();
       int top = b - t - childHeight;
@@ -321,11 +314,11 @@ public class ViewDragLayout extends FrameLayout {
    * @param childCount child count
    */
   private void layoutVertical(int l, int r, int childCount) {
-    boolean isInit = childViews.valueAt(0).getTop() == 0;
+    boolean isInit = childViews.get(0).getTop() == 0;
     int offset = 0;
 
     for (int index = 0; index < childCount; index++) {
-      View child = childViews.valueAt(index);
+      View child = childViews.get(index);
       int childWidth = child.getMeasuredWidth();
       int childHeight = child.getMeasuredHeight();
       int left = r - l - childWidth;
@@ -421,6 +414,18 @@ public class ViewDragLayout extends FrameLayout {
     }
   }
 
+  private View getView(int childId) {
+    synchronized (childViews) {
+      for (View view : childViews) {
+        if (view.getId() == childId) {
+          return view;
+        }
+      }
+    }
+
+    return null;
+  }
+
   public ViewDragHelper getViewDragHelper() {
     return viewDragHelper;
   }
@@ -442,7 +447,7 @@ public class ViewDragLayout extends FrameLayout {
    * @param y drag distance int y-axis
    */
   public void dragSpecificView(int childId, int x, int y) {
-    View hoverView = childViews.get(childId);
+    View hoverView = getView(childId);
     if (hoverView != null) {
       if (viewDragHelper.smoothSlideViewTo(hoverView, hoverView.getLeft() + x,
           hoverView.getTop() + y)) {
@@ -457,7 +462,7 @@ public class ViewDragLayout extends FrameLayout {
    * @param childId specific view id
    */
   public void resetSpecificView(int childId) {
-    View hoverView = childViews.get(childId);
+    View hoverView = getView(childId);
     if (hoverView != null) {
       Distance x = dragDistanceXs.get(childId);
       Distance y = dragDistanceYs.get(childId);
@@ -494,7 +499,7 @@ public class ViewDragLayout extends FrameLayout {
 
         int size = childViews.size();
         for (int i = 0; i < size; i++) {
-          int childId = childViews.keyAt(i);
+          int childId = childViews.get(i).getId();
           dragFlags.put(childId, dragDirectionFlag);
         }
 
@@ -515,7 +520,7 @@ public class ViewDragLayout extends FrameLayout {
       @Override
       public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
           int oldTop, int oldRight, int oldBottom) {
-        View child = childViews.get(childId);
+        View child = getView(childId);
         if (child != null) {
           dragFlags.put(childId, dragDirectionFlag);
         }
@@ -539,8 +544,7 @@ public class ViewDragLayout extends FrameLayout {
         dragDistanceXs.clear();
         int size = childViews.size();
         for (int i = 0; i < size; i++) {
-          View child = childViews.valueAt(i);
-
+          View child = childViews.get(i);
           // Only the child has drag flag can set drag x
           int flag = dragFlags.get(child.getId());
           if (flag > 0) {
@@ -565,7 +569,7 @@ public class ViewDragLayout extends FrameLayout {
       @Override
       public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
           int oldTop, int oldRight, int oldBottom) {
-        View child = childViews.get(childId);
+        View child = getView(childId);
         if (child != null) {
           dragDistanceXs.put(childId, new Distance(child.getLeft(), leftX, rightX));
         }
@@ -589,7 +593,7 @@ public class ViewDragLayout extends FrameLayout {
         dragDistanceYs.clear();
         int size = childViews.size();
         for (int i = 0; i < size; i++) {
-          View child = childViews.valueAt(i);
+          View child = childViews.get(i);
           dragDistanceYs.put(child.getId(), new Distance(child.getTop(), topY, bottomY));
         }
 
@@ -610,7 +614,7 @@ public class ViewDragLayout extends FrameLayout {
       @Override
       public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
           int oldTop, int oldRight, int oldBottom) {
-        View child = childViews.get(childId);
+        View child = getView(childId);
         if (child != null) {
           dragDistanceYs.put(childId, new Distance(child.getTop(), topY, bottomY));
         }
@@ -632,7 +636,7 @@ public class ViewDragLayout extends FrameLayout {
       @Override
       public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
           int oldTop, int oldRight, int oldBottom) {
-        View child = childViews.get(dragChildId);
+        View child = getView(dragChildId);
         if (child != null) {
           edgeViews.put(dragChildId, edgeFlag);
         }
@@ -662,11 +666,11 @@ public class ViewDragLayout extends FrameLayout {
       @Override
       public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
           int oldTop, int oldRight, int oldBottom) {
-        View child = childViews.get(targetId);
+        View child = getView(targetId);
         if (child != null) {
           List<View> hooks = new ArrayList<>();
           for (int id : hookId) {
-            View view = childViews.get(id);
+            View view = getView(id);
             if (view != null) {
               hooks.add(view);
             }
@@ -725,7 +729,7 @@ public class ViewDragLayout extends FrameLayout {
         if (instance.edgeViews.valueAt(i) == edgeFlags) {
           int childId = instance.edgeViews.keyAt(i);
 
-          View edgeChild = instance.childViews.get(childId);
+          View edgeChild = instance.getView(childId);
           if (edgeChild != null) {
             instance.viewDragHelper.captureChildView(edgeChild, pointerId);
           }
@@ -890,7 +894,7 @@ public class ViewDragLayout extends FrameLayout {
     private void onHorizontalViewPositionChanged(View changedView, int dx) {
       int size = instance.childViews.size();
       for (int i = 0; i < size; i++) {
-        View view = instance.childViews.valueAt(i);
+        View view = instance.childViews.get(i);
         if (!view.equals(changedView)) {
           view.offsetLeftAndRight(dx);
         }
@@ -902,7 +906,7 @@ public class ViewDragLayout extends FrameLayout {
     private void onVerticalViewPositionChanged(View changedView, int dy) {
       int size = instance.childViews.size();
       for (int i = 0; i < size; i++) {
-        View view = instance.childViews.valueAt(i);
+        View view = instance.childViews.get(i);
         if (!view.equals(changedView)) {
           view.offsetTopAndBottom(dy);
         }
