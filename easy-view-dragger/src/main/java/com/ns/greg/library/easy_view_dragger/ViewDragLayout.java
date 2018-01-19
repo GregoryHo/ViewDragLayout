@@ -99,9 +99,9 @@ public class ViewDragLayout extends FrameLayout {
     super(context, attrs, defStyle);
   }
 
-  /*********************************
+  /*--------------------------------
    * Functions
-   *********************************/
+   *-------------------------------*/
 
   @Override protected void onAttachedToWindow() {
     super.onAttachedToWindow();
@@ -259,7 +259,6 @@ public class ViewDragLayout extends FrameLayout {
       int childHeight = child.getMeasuredHeight();
       int left = r - l - childWidth;
       int top = b - t - childHeight;
-
       if (left > 0) {
         left = (r - l) / 2 - (childWidth / 2);
       }
@@ -282,13 +281,11 @@ public class ViewDragLayout extends FrameLayout {
   private void layoutHorizontal(int t, int b, int childCount) {
     boolean isInit = childViews.get(0).getLeft() == 0;
     int offset = 0;
-
     for (int index = 0; index < childCount; index++) {
       View child = childViews.get(index);
       int childWidth = child.getMeasuredWidth();
       int childHeight = child.getMeasuredHeight();
       int top = b - t - childHeight;
-
       if (top > 0) {
         top = (b - t) / 2 - (childHeight / 2);
       }
@@ -316,7 +313,6 @@ public class ViewDragLayout extends FrameLayout {
   private void layoutVertical(int l, int r, int childCount) {
     boolean isInit = childViews.get(0).getTop() == 0;
     int offset = 0;
-
     for (int index = 0; index < childCount; index++) {
       View child = childViews.get(index);
       int childWidth = child.getMeasuredWidth();
@@ -351,7 +347,6 @@ public class ViewDragLayout extends FrameLayout {
       final int action = MotionEventCompat.getActionMasked(ev);
       if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
         viewDragHelper.cancel();
-
         return false;
       }
 
@@ -496,7 +491,6 @@ public class ViewDragLayout extends FrameLayout {
       public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
           int oldTop, int oldRight, int oldBottom) {
         dragFlags.clear();
-
         int size = childViews.size();
         for (int i = 0; i < size; i++) {
           int childId = childViews.get(i).getId();
@@ -923,6 +917,7 @@ public class ViewDragLayout extends FrameLayout {
           } else {
             releasedAnimation(releasedChild, xvel, yvel);
           }
+
           break;
 
         case HOVER_LINEAR_HORIZONTAL:
@@ -1014,7 +1009,6 @@ public class ViewDragLayout extends FrameLayout {
       Distance y = instance.dragDistanceYs.get(releasedChild.getId());
       if (y != null) {
         int top = yvel < 0 ? y.getMin() : y.getMax();
-
         if (instance.viewDragHelper.smoothSlideViewTo(releasedChild, releasedChild.getLeft(),
             top)) {
           ViewCompat.postInvalidateOnAnimation(instance);
