@@ -18,3 +18,4 @@ A flexible view group that you can drag the child view easily.
 **`Pull as`**: `Top`, `Bottom`
 
 ### DEMO
+![Demo GIF](https://github.com/GregoryHo/ViewDragLayout/blob/master/demo/demo.gif)
