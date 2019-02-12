@@ -12,6 +12,7 @@ import android.util.SparseArray;
 import android.util.SparseIntArray;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewParent;
 import android.widget.FrameLayout;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -25,7 +26,6 @@ import java.util.List;
 public class ViewDragLayout extends FrameLayout {
 
   private static final String TAG = "ViewDragLayout";
-
   private static final Boolean DEBUG = false;
 
   /*--------------------------------
@@ -337,8 +337,9 @@ public class ViewDragLayout extends FrameLayout {
   }
 
   private void requestParentDisallowInterceptTouchEvent(boolean request) {
-    if (getParent() != null) {
-      getParent().requestDisallowInterceptTouchEvent(request);
+    ViewParent parent = getParent();
+    if (parent != null) {
+      parent.requestDisallowInterceptTouchEvent(request);
     }
   }
 
@@ -722,7 +723,6 @@ public class ViewDragLayout extends FrameLayout {
       for (int i = 0; i < size; i++) {
         if (instance.edgeViews.valueAt(i) == edgeFlags) {
           int childId = instance.edgeViews.keyAt(i);
-
           View edgeChild = instance.getView(childId);
           if (edgeChild != null) {
             instance.viewDragHelper.captureChildView(edgeChild, pointerId);
@@ -946,7 +946,6 @@ public class ViewDragLayout extends FrameLayout {
     private void releasedAnimation(View releasedChild, float xvel, float yvel) {
       int left = releasedChild.getLeft();
       int top = releasedChild.getTop();
-
       Distance x = instance.dragDistanceXs.get(releasedChild.getId());
       if (x != null) {
         int distanceThreshold = x.getMax() + x.getMin() / 2;

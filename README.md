@@ -16,3 +16,5 @@ A flexible view group that you can drag the child view easily.
 **`Chain as`**: `Left`, `Right`
 
 **`Pull as`**: `Top`, `Bottom`
+
+### DEMO

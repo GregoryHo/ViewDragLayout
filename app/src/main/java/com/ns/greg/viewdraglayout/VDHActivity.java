@@ -17,20 +17,16 @@ public class VDHActivity extends AppCompatActivity {
 
   @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
     setContentView(R.layout.demo);
 
     /*--------------------------------
      * Swipe left
      *-------------------------------*/
 
-    final ViewDragLayout horizontalHover = (ViewDragLayout) findViewById(R.id.horizontal_vdh);
+    final ViewDragLayout horizontalHover = findViewById(R.id.horizontal_vdh);
     final int dragX = convertDpToPixel(100f, getApplicationContext());
-    findViewById(R.id.horizontal_bottom_view).setOnClickListener(new View.OnClickListener() {
-      @Override public void onClick(View v) {
-        horizontalHover.resetSpecificView(R.id.horizontal_hover_view);
-      }
-    });
+    findViewById(R.id.horizontal_bottom_view).setOnClickListener(
+        v -> horizontalHover.resetSpecificView(R.id.horizontal_hover_view));
     new ViewDragLayout.Builder(horizontalHover).setLayoutType(
         ViewDragLayout.HOVER_LINEAR_HORIZONTAL)
         .setSpecificDragDirectionFlag(R.id.horizontal_hover_view,
@@ -38,25 +34,16 @@ public class VDHActivity extends AppCompatActivity {
         .setDragX(dragX, 0)
         .asChain()
         .create();
-
-    horizontalHover.setOnClickListener(new View.OnClickListener() {
-      @Override public void onClick(View v) {
-        Toast.makeText(getApplicationContext(), "On clicked", Toast.LENGTH_SHORT).show();
-        horizontalHover.resetSpecificView(R.id.horizontal_hover_view);
-      }
-    });
+    horizontalHover.setOnClickListener(v -> horizontalHover.resetSpecificView(R.id.horizontal_hover_view));
 
     /*--------------------------------
      * Swipe top
      *-------------------------------*/
 
-    final ViewDragLayout verticalHover = (ViewDragLayout) findViewById(R.id.vertical_vdh);
+    final ViewDragLayout verticalHover = findViewById(R.id.vertical_vdh);
     final int dragY = convertDpToPixel(75f, getApplicationContext());
-    findViewById(R.id.vertical_bottom_view).setOnClickListener(new View.OnClickListener() {
-      @Override public void onClick(View v) {
-        verticalHover.resetSpecificView(R.id.vertical_hover_view);
-      }
-    });
+    findViewById(R.id.vertical_bottom_view).setOnClickListener(
+        v -> verticalHover.resetSpecificView(R.id.vertical_hover_view));
     new ViewDragLayout.Builder(verticalHover).setLayoutType(ViewDragLayout.HOVER_LINEAR_VERTICAL)
         .setSpecificDragDirectionFlag(R.id.vertical_hover_view,
             ViewDragLayout.TOP | ViewDragLayout.BOTTOM)
@@ -69,13 +56,10 @@ public class VDHActivity extends AppCompatActivity {
      * Hook right
      *-------------------------------*/
 
-    final ViewDragLayout hookHover = (ViewDragLayout) findViewById(R.id.hooked_vdh);
+    final ViewDragLayout hookHover = findViewById(R.id.hooked_vdh);
     final int hookX = convertDpToPixel(100f, getApplicationContext());
-    findViewById(R.id.hooked_bottom_view).setOnClickListener(new View.OnClickListener() {
-      @Override public void onClick(View v) {
-        hookHover.resetSpecificView(R.id.hooked_bottom_view);
-      }
-    });
+    findViewById(R.id.hooked_bottom_view).setOnClickListener(
+        v -> hookHover.resetSpecificView(R.id.hooked_bottom_view));
     new ViewDragLayout.Builder(hookHover).setLayoutType(ViewDragLayout.HOVER_LINEAR_HORIZONTAL)
         .setSpecificDragDirectionFlag(R.id.hooked_hover_view,
             ViewDragLayout.LEFT | ViewDragLayout.RIGHT)
@@ -87,7 +71,7 @@ public class VDHActivity extends AppCompatActivity {
     /*--------------------------------
      * Pull down
      *-------------------------------*/
-    final ViewDragLayout pullDown = (ViewDragLayout) findViewById(R.id.pull_down_vdh);
+    final ViewDragLayout pullDown = findViewById(R.id.pull_down_vdh);
     final int pullY = convertDpToPixel(150f, getApplicationContext());
     new ViewDragLayout.Builder(pullDown).setLayoutType(ViewDragLayout.HOVER_FRAME_OVERLAY)
         .setSpecificDragDirectionFlag(R.id.pull_hover_view,
